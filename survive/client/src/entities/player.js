@@ -41,14 +41,23 @@ export class PlayerController {
       shipParts: 0,
       ammo: 30
     };
+    this.kills = 0;
+
+    // Callbacks
+    this.onShoot = null;
+    this.onInteract = null;
 
     this.setupInputs();
   }
 
   setupInputs() {
-    this.domElement.addEventListener('click', () => {
+    this.domElement.addEventListener('mousedown', (e) => {
       if (!this.isLocked) {
         this.domElement.requestPointerLock();
+        return;
+      }
+      if (e.button === 0 && this.onShoot) {
+        this.onShoot();
       }
     });
 
@@ -57,7 +66,13 @@ export class PlayerController {
       const blocker = document.getElementById('blocker');
       const modalLb = document.getElementById('modal-leaderboard');
       const modalBestiary = document.getElementById('modal-bestiary');
-      const isAnyModalOpen = (modalLb && modalLb.style.display === 'block') || (modalBestiary && modalBestiary.style.display === 'block');
+      const modalVictory = document.getElementById('modal-victory');
+      const modalGameOver = document.getElementById('modal-gameover');
+      const isAnyModalOpen =
+        (modalLb && modalLb.style.display === 'block') ||
+        (modalBestiary && modalBestiary.style.display === 'block') ||
+        (modalVictory && modalVictory.style.display === 'block') ||
+        (modalGameOver && modalGameOver.style.display === 'block');
 
       if (blocker) {
         blocker.style.display = (this.isLocked || isAnyModalOpen) ? 'none' : 'flex';
@@ -100,6 +115,11 @@ export class PlayerController {
         break;
       case 'Space':
         this.keys.jump = isDown;
+        break;
+      case 'KeyE':
+        if (isDown && this.onInteract) {
+          this.onInteract();
+        }
         break;
     }
   }
