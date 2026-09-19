@@ -1,0 +1,51 @@
+# ========================
+# Dependencies
+# ========================
+node_modules/
+
+# ========================
+# Environment Variables
+# ========================
+.env
+.env.local
+.env.*.local
+
+# ========================
+# Build Outputs
+# ========================
+client/dist/
+client/.vite/
+
+# ========================
+# SQLite Database File
+# ========================
+server/*.sqlite
+server/*.db
+
+# ========================
+# Logs
+# ========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ========================
+# OS / Editor Artifacts
+# ========================
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ========================
+# Misc
+# ========================
+*.local
+dist/
+.cache/
