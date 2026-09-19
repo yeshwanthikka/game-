@@ -169,6 +169,11 @@ export class PlayerController {
     this.position.y += this.velocity.y * delta;
     this.position.z += this.velocity.z * delta;
 
+    // Solid Obstacle Collision Resolution (Rocks, Spires, Pod)
+    if (this.terrain && this.terrain.resolveCollision) {
+      this.terrain.resolveCollision(this.position, 0.75);
+    }
+
     // Terrain ground clamping
     const groundY = this.terrain.getHeight(this.position.x, this.position.z);
     const targetY = groundY + this.eyeHeight;

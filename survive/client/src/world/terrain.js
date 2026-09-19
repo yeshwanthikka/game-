@@ -94,8 +94,11 @@ export class Terrain {
     this.mesh.receiveShadow = true;
     this.scene.add(this.mesh);
 
+    this.obstacles = [];
     this.spawnRocksAndFlora();
-    this.spawnCrashSite();
+
+    // Add Escape Pod obstacle footprint at (0, 0)
+    this.obstacles.push({ x: 0, z: 0, radius: 3.2 });
   }
 
   spawnRocksAndFlora() {
@@ -127,6 +130,13 @@ export class Terrain {
       dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
       dummy.updateMatrix();
       this.rockInstances.setMatrixAt(i, dummy.matrix);
+
+      // Register solid rock obstacle
+      this.obstacles.push({
+        x,
+        z,
+        radius: 1.3 * scale * 0.7
+      });
     }
     this.rockInstances.instanceMatrix.needsUpdate = true;
     this.scene.add(this.rockInstances);
@@ -153,46 +163,36 @@ export class Terrain {
       dummy.rotation.set((Math.random() - 0.5) * 0.2, Math.random() * Math.PI, (Math.random() - 0.5) * 0.2);
       dummy.updateMatrix();
       this.alienFloraInstances.setMatrixAt(i, dummy.matrix);
+
+      // Register solid spire obstacle
+      this.obstacles.push({
+        x,
+        z,
+        radius: 0.75
+      });
     }
     this.alienFloraInstances.instanceMatrix.needsUpdate = true;
     this.scene.add(this.alienFloraInstances);
   }
 
-  spawnCrashSite() {
-    // Crashed Pod geometry at (0, 0)
-    const podGroup = new THREE.Group();
+  resolveCollision(pos, radius = 0.7) {
+    for (let i = 0; i < this.obstacles.length; i++) {
+      const obs = this.obstacles[i];
+      const dx = pos.x - obs.x;
+      const dz = pos.z - obs.z;
+      const minDist = obs.radius + radius;
+      const distSq = dx * dx + dz * dz;
 
-    // Main pod chassis
-    const bodyGeo = new THREE.CylinderGeometry(2.2, 1.4, 6, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0x4a5568,
-      metalness: 0.85,
-      roughness: 0.3
-    });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.rotation.z = Math.PI / 3;
-    body.rotation.x = 0.3;
-    body.position.set(0, 1.2, 0);
-    podGroup.add(body);
-
-    // Glowing emergency beacon
-    const beaconGeo = new THREE.SphereGeometry(0.4, 16, 16);
-    const beaconMat = new THREE.MeshStandardMaterial({
-      color: 0xff3366,
-      emissive: 0xff0044,
-      emissiveIntensity: 2.0
-    });
-    const beacon = new THREE.Mesh(beaconGeo, beaconMat);
-    beacon.position.set(-1.8, 2.8, 0.8);
-    podGroup.add(beacon);
-
-    // Extraction beacon light
-    const beaconLight = new THREE.PointLight(0xff0044, 4, 15);
-    beaconLight.position.set(-1.8, 3.0, 0.8);
-    podGroup.add(beaconLight);
-
-    const podY = this.getHeight(0, 0);
-    podGroup.position.set(0, podY, 0);
-    this.scene.add(podGroup);
+      if (distSq < minDist * minDist) {
+        const dist = Math.sqrt(distSq);
+        if (dist > 0.001) {
+          const overlap = minDist - dist;
+          pos.x += (dx / dist) * overlap;
+          pos.z += (dz / dist) * overlap;
+        } else {
+          pos.x += minDist;
+        }
+      }
+    }
   }
 }
