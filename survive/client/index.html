@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survive & Run: Hostile Planet</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- 3D Canvas Rendering Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Center Crosshair -->
+    <div id="crosshair"></div>
+
+    <!-- In-Game HUD -->
+    <div id="hud">
+      <!-- Top HUD -->
+      <div class="hud-top">
+        <div class="hud-card mission-box">
+          <div class="card-title">PLANETARY CYCLE</div>
+          <div class="cycle-indicator">
+            <span id="cycle-label">DAY</span>
+            <span id="cycle-badge" class="cycle-badge">SOLAR MAX</span>
+          </div>
+          <div style="font-size: 11px; color: #a0aec0; margin-top: 4px;">
+            Elapsed: <span id="survival-timer">00:00</span>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button id="btn-leaderboard" class="hud-btn">LEADERBOARD</button>
+          <button id="btn-bestiary" class="hud-btn">XENO BESTIARY</button>
+        </div>
+      </div>
+
+      <!-- Bottom HUD -->
+      <div class="hud-bottom">
+        <!-- Vitals -->
+        <div class="hud-card vitals-box">
+          <div class="card-title">BIO SUIT INTEGRITY</div>
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>HEALTH</span>
+              <span id="health-val">100%</span>
+            </div>
+            <div class="bar-track">
+              <div id="health-fill" class="bar-fill health" style="width: 100%;"></div>
+            </div>
+          </div>
+          <div class="bar-container">
+            <div class="bar-label">
+              <span>EXO STAMINA</span>
+              <span id="stamina-val">100%</span>
+            </div>
+            <div class="bar-track">
+              <div id="stamina-fill" class="bar-fill stamina" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory / Mission Progress -->
+        <div class="hud-card">
+          <div class="card-title">EXTRACTION PROTOCOL</div>
+          <div class="inventory-grid">
+            <div class="item-stat">
+              <span class="card-title" style="margin: 0;">SHIP PARTS</span>
+              <span id="parts-val" class="item-val">0 / 4</span>
+            </div>
+            <div class="item-stat">
+              <span class="card-title" style="margin: 0;">BIO-FUEL</span>
+              <span id="fuel-val" class="item-val">0</span>
+            </div>
+            <div class="item-stat">
+              <span class="card-title" style="margin: 0;">ALLOY</span>
+              <span id="alloy-val" class="item-val">0</span>
+            </div>
+            <div class="item-stat">
+              <span class="card-title" style="margin: 0;">AMMO</span>
+              <span id="ammo-val" class="item-val" style="color: #ffaa00;">30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start / Resume Screen Blocker -->
+    <div id="blocker">
+      <div class="modal-content">
+        <div class="game-title">SURVIVE & RUN</div>
+        <div class="subtitle">HOSTILE XENOPLANET EXPEDITION</div>
+        
+        <div class="instructions">
+          <p>• <span>[W, A, S, D]</span> or Arrow Keys — Navigate terrain</p>
+          <p>• <span>[MOUSE]</span> — First-person look</p>
+          <p>• <span>[SPACE]</span> — Jump over alien crags</p>
+          <p>• <span>[SHIFT]</span> — Sprint (consumes suit stamina)</p>
+          <p>• <span>[ESC]</span> — Release mouse / pause view</p>
+          <p style="margin-top: 8px; color: #ffaa00;">
+            ⚠ Warning: Planet surface undergoes severe atmospheric changes between day & night.
+          </p>
+        </div>
+
+        <button id="start-button" class="btn-start">CLICK TO ENGAGE</button>
+      </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="modal-leaderboard" class="data-modal">
+      <button class="close-btn" id="close-leaderboard">&times;</button>
+      <h2>PLANETARY SCOUT LEADERBOARD</h2>
+      <div id="leaderboard-content" style="font-family: monospace; font-size: 13px; line-height: 1.6;">
+        Loading telemetry...
+      </div>
+    </div>
+
+    <!-- Bestiary Modal -->
+    <div id="modal-bestiary" class="data-modal">
+      <button class="close-btn" id="close-bestiary">&times;</button>
+      <h2>XENOMORPH SPECIES BESTIARY</h2>
+      <div id="bestiary-content" style="font-family: monospace; font-size: 13px; line-height: 1.6;">
+        Scanning xeno-signatures...
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
