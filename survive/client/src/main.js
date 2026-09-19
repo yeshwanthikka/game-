@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Terrain } from './world/terrain.js';
 import { SkyManager } from './world/sky.js';
 import { PlayerController } from './entities/player.js';
+import { CreatureManager } from './entities/spawner.js';
 import { api } from './net/api.js';
 
 class Game {
@@ -9,6 +10,7 @@ class Game {
     this.container = document.getElementById('canvas-container');
     this.clock = new THREE.Clock();
     this.survivalSeconds = 0;
+    this.isGameOver = false;
 
     // Setup Three.js Core
     this.scene = new THREE.Scene();
@@ -30,6 +32,7 @@ class Game {
     this.terrain = new Terrain(this.scene, 320, 128);
     this.sky = new SkyManager(this.scene);
     this.player = new PlayerController(this.camera, this.renderer.domElement, this.terrain);
+    this.creatureManager = new CreatureManager(this.scene, this.terrain);
 
     // Initial spawn location on terrain
     const spawnY = this.terrain.getHeight(0, 10) + this.player.eyeHeight;
@@ -146,8 +149,66 @@ class Game {
     closeBestiary.addEventListener('click', () => {
       modalBestiary.style.display = 'none';
       const blocker = document.getElementById('blocker');
-      if (blocker && !this.player.isLocked) blocker.style.display = 'flex';
+      if (blocker && !this.player.isLocked && !this.isGameOver) blocker.style.display = 'flex';
     });
+
+    // Respawn button
+    const respawnBtn = document.getElementById('btn-respawn');
+    if (respawnBtn) {
+      respawnBtn.addEventListener('click', () => {
+        const modalGameOver = document.getElementById('modal-gameover');
+        if (modalGameOver) modalGameOver.style.display = 'none';
+
+        this.player.health = this.player.maxHealth;
+        this.player.stamina = this.player.maxStamina;
+        const spawnY = this.terrain.getHeight(0, 10) + this.player.eyeHeight;
+        this.player.position.set(0, spawnY, 10);
+        this.player.velocity.set(0, 0, 0);
+        this.survivalSeconds = 0;
+        this.isGameOver = false;
+
+        this.renderer.domElement.requestPointerLock();
+      });
+    }
+  }
+
+  triggerDamageFlash() {
+    const overlay = document.getElementById('damage-overlay');
+    if (overlay) {
+      overlay.classList.add('active');
+      setTimeout(() => {
+        overlay.classList.remove('active');
+      }, 180);
+    }
+  }
+
+  async handlePlayerDeath() {
+    this.isGameOver = true;
+    if (document.exitPointerLock) document.exitPointerLock();
+
+    const blocker = document.getElementById('blocker');
+    if (blocker) blocker.style.display = 'none';
+
+    const modalGameOver = document.getElementById('modal-gameover');
+    const timeElem = document.getElementById('gameover-time');
+    if (timeElem) {
+      const mins = Math.floor(this.survivalSeconds / 60).toString().padStart(2, '0');
+      const secs = Math.floor(this.survivalSeconds % 60).toString().padStart(2, '0');
+      timeElem.textContent = `${mins}:${secs} (${Math.round(this.survivalSeconds)}s)`;
+    }
+    if (modalGameOver) modalGameOver.style.display = 'block';
+
+    // Telemetry / run logging
+    try {
+      await api.submitRun({
+        survivalTimeSec: Math.round(this.survivalSeconds),
+        outcome: 'death',
+        kills: 0,
+        resourcesCollected: this.player.inventory.shipParts + this.player.inventory.bioFuel + this.player.inventory.alienAlloy
+      });
+    } catch (err) {
+      console.warn('Unable to log run telemetry:', err);
+    }
   }
 
   onWindowResize() {
@@ -157,7 +218,7 @@ class Game {
   }
 
   updateHUD(skyData, delta) {
-    if (this.player.isLocked) {
+    if (this.player.isLocked && !this.isGameOver) {
       this.survivalSeconds += delta;
       const mins = Math.floor(this.survivalSeconds / 60).toString().padStart(2, '0');
       const secs = Math.floor(this.survivalSeconds % 60).toString().padStart(2, '0');
@@ -197,9 +258,22 @@ class Game {
 
     const delta = Math.min(this.clock.getDelta(), 0.1);
 
-    // Update systems
+    // Update player & environment
     this.player.update(delta);
     const skyData = this.sky.update(delta, this.player.position);
+
+    // Update creature ecology & handle attack damage
+    if (!this.isGameOver) {
+      const creatureResult = this.creatureManager.update(delta, this.player.position, skyData.isNight);
+      if (creatureResult.damageDealt > 0) {
+        this.player.health = Math.max(0, this.player.health - creatureResult.damageDealt);
+        this.triggerDamageFlash();
+        if (this.player.health <= 0) {
+          this.handlePlayerDeath();
+        }
+      }
+    }
+
     this.updateHUD(skyData, delta);
 
     // Render Scene

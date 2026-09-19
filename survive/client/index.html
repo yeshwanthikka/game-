@@ -123,6 +123,23 @@
       </div>
     </div>
 
+    <!-- Damage Flash Vignette -->
+    <div id="damage-overlay"></div>
+
+    <!-- Game Over Modal -->
+    <div id="modal-gameover" class="data-modal" style="text-align: center; border-color: #ff0055;">
+      <h2 style="color: #ff0055; border-bottom-color: rgba(255, 0, 85, 0.4);">BIO-SIGNALS TERMINATED</h2>
+      <p style="color: #e2e8f0; margin-bottom: 20px; font-size: 14px;">
+        Suit integrity collapsed under hostile alien assault.
+      </p>
+      <div id="gameover-stats" style="font-family: monospace; font-size: 13px; color: #a0aec0; margin-bottom: 24px;">
+        Survival Time: <span id="gameover-time" style="color: #ffaa00;">00:00</span>
+      </div>
+      <button id="btn-respawn" class="btn-start" style="background: linear-gradient(135deg, #ff0055, #990033); border-color: #ff0055;">
+        DEPLOY NEW CLONE
+      </button>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
