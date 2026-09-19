@@ -2655,6 +2655,1163 @@ class Game {
     ctx.restore();
   }
 
+  // --- Weapon Chest & Projectiles Rendering ---
+
+  drawWeaponChest(ctx) {
+    const c = this.weaponChest;
+    if (!c) return;
+    ctx.save();
+
+    if (!c.opened) {
+      // Floating bobbing motion
+      const bob = Math.sin(Date.now() * 0.005 + c.x) * 4;
+      const cy = c.y + bob;
+
+      // Golden aura glow
+      ctx.shadowColor = '#ffd60a';
+      ctx.shadowBlur = 16;
+
+      // Chest Body (Wood & Gold)
+      const chestGrad = ctx.createLinearGradient(c.x, cy, c.x, cy + c.h);
+      chestGrad.addColorStop(0, '#ffd60a');
+      chestGrad.addColorStop(0.25, '#d4a373');
+      chestGrad.addColorStop(1, '#8b5a2b');
+      ctx.fillStyle = chestGrad;
+      ctx.beginPath();
+      ctx.roundRect(c.x, cy + 10, c.w, c.h - 10, 4);
+      ctx.fill();
+
+      // Chest Lid (Dome)
+      ctx.fillStyle = '#ffd60a';
+      ctx.beginPath();
+      ctx.roundRect(c.x - 2, cy, c.w + 4, 13, [8, 8, 2, 2]);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#3e2723';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+      ctx.strokeRect(c.x, cy + 10, c.w, c.h - 10);
+
+      // Gold Iron Straps & Keyhole Latch
+      ctx.fillStyle = '#fff3b0';
+      ctx.fillRect(c.x + 8, cy, 4, c.h);
+      ctx.fillRect(c.x + c.w - 12, cy, 4, c.h);
+
+      ctx.fillStyle = '#ffbe0b';
+      ctx.beginPath();
+      ctx.arc(c.x + c.w / 2, cy + 12, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#4a2800';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+
+      ctx.fillStyle = '#1a0d00';
+      ctx.fillRect(c.x + c.w / 2 - 1, cy + 11, 2, 3);
+
+      // Pulsing Weapon Emblem & Name above Chest
+      const iconBob = Math.sin(Date.now() * 0.007) * 3;
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#ffd60a';
+      ctx.shadowBlur = 12;
+      ctx.font = 'bold 18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(c.weapon.icon, c.x + c.w / 2, cy - 14 + iconBob);
+
+      ctx.fillStyle = '#ffd60a';
+      ctx.font = '900 10px Orbitron, sans-serif';
+      ctx.fillText(c.weapon.name.toUpperCase(), c.x + c.w / 2, cy - 28 + iconBob);
+    } else {
+      // Opened Chest
+      ctx.fillStyle = '#5c3a21';
+      ctx.beginPath();
+      ctx.roundRect(c.x, c.y + 12, c.w, c.h - 12, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#2d1b0e';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Open lid tilted back
+      ctx.save();
+      ctx.translate(c.x, c.y + 10);
+      ctx.rotate(-0.4);
+      ctx.fillStyle = '#c59b27';
+      ctx.fillRect(0, -10, c.w, 10);
+      ctx.strokeRect(0, -10, c.w, 10);
+      ctx.restore();
+
+      // Glowing empty golden interior
+      ctx.fillStyle = 'rgba(255, 214, 10, 0.4)';
+      ctx.fillRect(c.x + 4, c.y + 14, c.w - 8, 8);
+    }
+
+    ctx.restore();
+  }
+
+  drawEnergyGate(ctx) {
+    if (!this.boss || !this.boss.alive) return;
+    const gateX = this.flag.x - 70;
+    const topY = 140;
+    const botY = 480;
+
+    ctx.save();
+
+    // 1. Top Emitter Pylon
+    ctx.fillStyle = '#334155';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.roundRect(gateX - 16, topY - 24, 32, 24, [6, 6, 2, 2]);
+    ctx.fill();
+    ctx.stroke();
+
+    // Glowing Emitter Core Orb
+    const orbPulse = Math.sin(Date.now() * 0.01) * 0.2 + 0.8;
+    ctx.fillStyle = '#ff0054';
+    ctx.shadowColor = '#ff0054';
+    ctx.shadowBlur = 16 * orbPulse;
+    ctx.beginPath();
+    ctx.arc(gateX, topY - 12, 7 * orbPulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. Bottom Ground Anchor
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.roundRect(gateX - 22, botY, 44, 20, [4, 4, 0, 0]);
+    ctx.fill();
+    ctx.stroke();
+
+    // 3. Electric Laser Energy Beams
+    const laserAlpha = Math.sin(Date.now() * 0.015) * 0.2 + 0.75;
+    ctx.shadowColor = '#ff0054';
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = `rgba(255, 0, 84, ${laserAlpha})`;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(gateX, topY);
+    ctx.lineTo(gateX, botY);
+    ctx.stroke();
+
+    // White core hot beam
+    ctx.strokeStyle = `rgba(255, 255, 255, ${laserAlpha * 0.9})`;
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    // Crackling horizontal lightning arcs
+    ctx.strokeStyle = '#00f0ff';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    for (let ly = topY + 20; ly < botY - 20; ly += 45) {
+      const jitter = (Math.random() - 0.5) * 14;
+      ctx.moveTo(gateX - 10, ly);
+      ctx.lineTo(gateX + jitter, ly + 8);
+      ctx.lineTo(gateX + 10, ly + 16);
+    }
+    ctx.stroke();
+
+    // 4. Floating Holographic "BOSS LOCKED" Badge
+    const badgeY = (topY + botY) / 2 + Math.sin(Date.now() * 0.006) * 5;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    ctx.strokeStyle = '#ff0054';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#ff0054';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.roundRect(gateX - 58, badgeY - 16, 116, 32, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 0;
+    ctx.font = '900 10px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🔒 BOSS LOCK', gateX, badgeY);
+
+    ctx.restore();
+  }
+
+  drawProjectiles(ctx) {
+    for (let p of this.projectiles) {
+      ctx.save();
+      ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+      ctx.rotate(p.rot);
+
+      ctx.shadowColor = p.glow || p.color;
+      ctx.shadowBlur = 16;
+
+      if (p.ptype === 'fireball') {
+        // Golden fiery sunball
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Flame spurs
+        ctx.fillStyle = '#ff7b00';
+        for (let i = 0; i < 4; i++) {
+          const ang = (Math.PI / 2) * i;
+          ctx.beginPath();
+          ctx.arc(Math.cos(ang) * 6, Math.sin(ang) * 6, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (p.ptype === 'spore') {
+        // Bouncy glowing spore burst
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffb3c6';
+        ctx.beginPath();
+        ctx.arc(-2, -2, 2.5, 0, Math.PI * 2);
+        ctx.arc(3, 2, 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.ptype === 'crystal') {
+        // Sparkling diamond prism
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.moveTo(0, -9);
+        ctx.lineTo(8, 0);
+        ctx.lineTo(0, 9);
+        ctx.lineTo(-8, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      } else if (p.ptype === 'wand') {
+        // Solar wand comet
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffe3e0';
+        ctx.beginPath();
+        ctx.arc(1, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.ptype === 'boomerang') {
+        // Curved razor blade
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 9, -1.2, 1.2, false);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#d8f3dc';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      } else if (p.ptype === 'laser') {
+        // High-velocity plasma beam
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-12, -4, 24, 8);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-8, -2, 16, 4);
+      } else if (p.ptype === 'chakram') {
+        // Serrated spinning golden chakram
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(0, 0, 8.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      } else if (p.ptype === 'thunder') {
+        // Jagged lightning dart
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(-9, -6);
+        ctx.lineTo(-1, 0);
+        ctx.lineTo(-3, 2);
+        ctx.lineTo(9, 6);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      } else if (p.ptype === 'bomb') {
+        // Round magma bomb
+        ctx.fillStyle = '#1e1e1e';
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ff5400';
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffd60a';
+        ctx.fillRect(4, -8, 4, 4);
+      } else {
+        // Cosmic nova starburst
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const r = i % 2 === 0 ? 10 : 4;
+          const a = (Math.PI / 4) * i;
+          ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+  }
+
+  // --- 10 Reference Monster Boss Visuals ---
+
+  drawBoss(ctx) {
+    const b = this.boss;
+    if (!b || !b.alive) return;
+
+    ctx.save();
+
+    // 1. In-World Floating Health Bar & Title
+    const barW = 64;
+    const barH = 6;
+    const barX = b.x + (b.w - barW) / 2;
+    const barY = b.y - 20;
+
+    // Dark Background track
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, barW, barH, 3);
+    ctx.fill();
+    ctx.stroke();
+
+    // Health Fill Bar (Green -> Yellow -> Red)
+    const hpPct = Math.max(0, Math.min(1, b.curHp / b.maxHp));
+    const fillW = Math.max(2, barW * hpPct);
+    const hpGrad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+    if (hpPct > 0.5) {
+      hpGrad.addColorStop(0, '#00f59b');
+      hpGrad.addColorStop(1, '#70e000');
+    } else if (hpPct > 0.25) {
+      hpGrad.addColorStop(0, '#ffbe0b');
+      hpGrad.addColorStop(1, '#fb8500');
+    } else {
+      hpGrad.addColorStop(0, '#ff0054');
+      hpGrad.addColorStop(1, '#9d0208');
+    }
+    ctx.fillStyle = hpGrad;
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, fillW, barH, 3);
+    ctx.fill();
+
+    // Boss Name Tag above bar
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#000000';
+    ctx.shadowBlur = 6;
+    ctx.font = '900 9px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.name.toUpperCase(), barX + barW / 2, barY - 4);
+    ctx.shadowBlur = 0;
+
+    // 2. Render Monster Model with Hit Flash & Orientation
+    ctx.translate(b.x + b.w / 2, b.y + b.h / 2);
+    const dir = b.vx >= 0 ? 1 : -1;
+    ctx.scale(dir, 1);
+
+    // White hit flash when wounded
+    if (b.hitFlash > 0) {
+      ctx.filter = 'brightness(2.2) contrast(1.3)';
+    }
+
+    // Render signature beast model based on type
+    switch (b.type) {
+      case 'thornshell':
+        this.drawThornshell(ctx, b);
+        break;
+      case 'shroomling':
+        this.drawShroomling(ctx, b);
+        break;
+      case 'skeleton':
+        this.drawSkeleton(ctx, b);
+        break;
+      case 'grimoire':
+        this.drawGrimoire(ctx, b);
+        break;
+      case 'ocular':
+        this.drawOcular(ctx, b);
+        break;
+      case 'arachnotron':
+        this.drawArachnotron(ctx, b);
+        break;
+      case 'lurker':
+        this.drawLurker(ctx, b);
+        break;
+      case 'wasp':
+        this.drawWasp(ctx, b);
+        break;
+      case 'snail':
+        this.drawSnail(ctx, b);
+        break;
+      case 'octo':
+      default:
+        this.drawOcto(ctx, b);
+        break;
+    }
+
+    ctx.restore();
+  }
+
+  // 1. Level 1: Thornshell Cyclops (Armored horned turtle with single cyclops eye)
+  drawThornshell(ctx, b) {
+    const walk = Math.sin(b.phase * 3);
+
+    // Spiked Carapace Shell
+    const shellGrad = ctx.createLinearGradient(-26, -20, 26, 20);
+    shellGrad.addColorStop(0, '#2d6a4f');
+    shellGrad.addColorStop(1, '#1b4332');
+    ctx.fillStyle = shellGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 26, 22, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#081c15';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // 4 Bone Spikes along the shell
+    ctx.fillStyle = '#f8f9fa';
+    const spikeCoords = [
+      [-16, -18, -20, -28],
+      [-5, -22, -6, -34],
+      [8, -20, 10, -31],
+      [18, -12, 25, -20]
+    ];
+    for (let s of spikeCoords) {
+      ctx.beginPath();
+      ctx.moveTo(s[0] - 3, s[1]);
+      ctx.lineTo(s[2], s[3]);
+      ctx.lineTo(s[0] + 3, s[1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Reptilian Clawed Feet
+    ctx.fillStyle = '#40916c';
+    ctx.beginPath();
+    ctx.roundRect(-18 + walk * 3, 16, 12, 12, 4);
+    ctx.roundRect(8 - walk * 3, 16, 12, 12, 4);
+    ctx.fill();
+    ctx.stroke();
+
+    // Claws
+    ctx.fillStyle = '#ffd166';
+    ctx.fillRect(-18 + walk * 3 + 1, 26, 3, 4);
+    ctx.fillRect(-18 + walk * 3 + 7, 26, 3, 4);
+    ctx.fillRect(8 - walk * 3 + 1, 26, 3, 4);
+    ctx.fillRect(8 - walk * 3 + 7, 26, 3, 4);
+
+    // Head with horn
+    ctx.fillStyle = '#52b788';
+    ctx.beginPath();
+    ctx.roundRect(14, -12, 18, 18, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Snout horn
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath();
+    ctx.moveTo(28, -8);
+    ctx.lineTo(35, -14);
+    ctx.lineTo(26, -4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Giant Cyclops Eye
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath();
+    ctx.arc(22, -3, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Slit pupil
+    ctx.fillStyle = '#081c15';
+    ctx.beginPath();
+    ctx.ellipse(23, -3, 2, 4.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Catchlight
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(21.5, -4.5, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 2. Level 2: Spore Shroomling (Giant spotted mushroom beast with walking boots)
+  drawShroomling(ctx, b) {
+    const walk = Math.sin(b.phase * 3);
+
+    // Chunky Maroon Feet
+    ctx.fillStyle = '#590d22';
+    ctx.strokeStyle = '#250008';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.ellipse(-12 + walk * 4, 22, 9, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(12 - walk * 4, 22, 9, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Mushroom Stalk Body
+    ctx.fillStyle = '#f8edeb';
+    ctx.beginPath();
+    ctx.roundRect(-16, -4, 32, 24, [8, 8, 4, 4]);
+    ctx.fill();
+    ctx.stroke();
+
+    // Angry eyes on stalk
+    ctx.fillStyle = '#03071e';
+    ctx.beginPath();
+    ctx.ellipse(-6, 6, 3, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(8, 6, 3, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Red brows
+    ctx.strokeStyle = '#9d0208';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, 2);
+    ctx.lineTo(-2, 4);
+    ctx.moveTo(12, 2);
+    ctx.lineTo(4, 4);
+    ctx.stroke();
+
+    // Giant Crimson Mushroom Cap
+    const capGrad = ctx.createLinearGradient(0, -32, 0, 0);
+    capGrad.addColorStop(0, '#ff4d6d');
+    capGrad.addColorStop(1, '#800f2f');
+    ctx.fillStyle = capGrad;
+    ctx.strokeStyle = '#250008';
+    ctx.lineWidth = 2.5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, -12, 30, 20, 0, Math.PI, 0, false);
+    ctx.lineTo(28, -6);
+    ctx.quadraticCurveTo(0, 0, -28, -6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Cream-Yellow Polkadots on Cap
+    ctx.fillStyle = '#ffea00';
+    const spots = [[-16, -18, 5], [0, -24, 6], [16, -18, 5], [-8, -12, 4], [10, -11, 4.5]];
+    for (let s of spots) {
+      ctx.beginPath();
+      ctx.arc(s[0], s[1], s[2], 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // 3. Level 3: Crypt Skel-Knight (Floating horned skull with cyan spectral fire)
+  drawSkeleton(ctx, b) {
+    const floatY = Math.sin(b.phase * 2) * 4;
+
+    // Cyan Spectral Flame Aura
+    ctx.shadowColor = '#00f0ff';
+    ctx.shadowBlur = 18;
+
+    // Horned Iron Helmet
+    ctx.fillStyle = '#475569';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.arc(0, -10 + floatY, 20, Math.PI, 0, false);
+    ctx.fill();
+    ctx.stroke();
+
+    // Helmet horns
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.moveTo(-16, -12 + floatY);
+    ctx.quadraticCurveTo(-30, -22 + floatY, -26, -34 + floatY);
+    ctx.quadraticCurveTo(-20, -20 + floatY, -10, -18 + floatY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(16, -12 + floatY);
+    ctx.quadraticCurveTo(30, -22 + floatY, 26, -34 + floatY);
+    ctx.quadraticCurveTo(20, -20 + floatY, 10, -18 + floatY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Bleached Skull
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.roundRect(-16, -10 + floatY, 32, 22, [4, 4, 10, 10]);
+    ctx.fill();
+    ctx.stroke();
+
+    // Glowing Cyan Eye Sockets
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.ellipse(-7, -2 + floatY, 5, 6, -0.15, 0, Math.PI * 2);
+    ctx.ellipse(7, -2 + floatY, 5, 6, 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Burning Cyan Spirit Flame Core
+    ctx.fillStyle = '#00f0ff';
+    ctx.beginPath();
+    ctx.arc(-7, -2 + floatY, 3, 0, Math.PI * 2);
+    ctx.arc(7, -2 + floatY, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    // Teeth Grin
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-10, 7 + floatY, 20, 2);
+    for (let tx = -8; tx <= 8; tx += 4) {
+      ctx.fillRect(tx, 5 + floatY, 2, 5);
+    }
+
+    // Ribcage floating below
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(0, 14 + floatY);
+    ctx.lineTo(0, 26 + floatY);
+    ctx.moveTo(-10, 18 + floatY);
+    ctx.lineTo(10, 18 + floatY);
+    ctx.moveTo(-8, 23 + floatY);
+    ctx.lineTo(8, 23 + floatY);
+    ctx.stroke();
+  }
+
+  // 4. Level 4: Gloom Grimoire (Floating forbidden tome with cyclops eye and ribbon tongue)
+  drawGrimoire(ctx, b) {
+    const flap = Math.sin(b.phase * 4) * 0.25;
+
+    // Dark Purple Leather Tome
+    ctx.save();
+    ctx.rotate(flap);
+
+    // Book Shadow & Cover
+    ctx.fillStyle = '#240046';
+    ctx.strokeStyle = '#ffd60a';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.roundRect(-24, -20, 48, 40, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Gilded Corners
+    ctx.fillStyle = '#ffd60a';
+    ctx.fillRect(-24, -20, 8, 8);
+    ctx.fillRect(16, -20, 8, 8);
+    ctx.fillRect(-24, 12, 8, 8);
+    ctx.fillRect(16, 12, 8, 8);
+
+    // Gilded Parchment Pages
+    ctx.fillStyle = '#ffeedb';
+    ctx.fillRect(18, -16, 6, 32);
+
+    // Giant Demonic Cyclops Eye in Center
+    ctx.fillStyle = '#ff0054';
+    ctx.shadowColor = '#ff0054';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(0, -2, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.ellipse(0, -2, 7, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Slit pupil
+    ctx.fillStyle = '#03071e';
+    ctx.beginPath();
+    ctx.ellipse(1, -2, 2.2, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Razor teeth inside lower book edge
+    ctx.fillStyle = '#ffffff';
+    for (let tx = -14; tx <= 14; tx += 6) {
+      ctx.beginPath();
+      ctx.moveTo(tx - 2, 14);
+      ctx.lineTo(tx, 8);
+      ctx.lineTo(tx + 2, 14);
+      ctx.fill();
+    }
+
+    // Long Undulating Crimson Bookmark Tongue
+    const tongueWave = Math.sin(Date.now() * 0.008) * 8;
+    ctx.fillStyle = '#d90429';
+    ctx.beginPath();
+    ctx.moveTo(-4, 14);
+    ctx.quadraticCurveTo(8 + tongueWave, 24, 4 + tongueWave, 34);
+    ctx.lineTo(1 + tongueWave, 34);
+    ctx.quadraticCurveTo(2, 24, -4, 14);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // 5. Level 5: Ocular Stalker (Massive bloodshot eyeball crawling on 4 spider legs)
+  drawOcular(ctx, b) {
+    const step = Math.sin(b.phase * 4);
+
+    // 4 Jointed Arachnid Legs
+    ctx.strokeStyle = '#212529';
+    ctx.lineWidth = 3.2;
+
+    const legs = [
+      [-14, 4, -28 + step * 4, -8, -32 + step * 5, 24],
+      [-6, 8, -18 - step * 4, 12, -22 - step * 5, 24],
+      [6, 8, 18 + step * 4, 12, 22 + step * 5, 24],
+      [14, 4, 28 - step * 4, -8, 32 - step * 5, 24]
+    ];
+    for (let l of legs) {
+      ctx.beginPath();
+      ctx.moveTo(l[0], l[1]);
+      ctx.lineTo(l[2], l[3]);
+      ctx.lineTo(l[4], l[5]);
+      ctx.stroke();
+    }
+
+    // Massive Spherical Eyeball
+    const eyeGrad = ctx.createRadialGradient(4, -4, 4, 0, 0, 24);
+    eyeGrad.addColorStop(0, '#ffffff');
+    eyeGrad.addColorStop(0.85, '#f8f9fa');
+    eyeGrad.addColorStop(1, '#e9ecef');
+    ctx.fillStyle = eyeGrad;
+    ctx.beginPath();
+    ctx.arc(0, 0, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    // Red Capillary Blood Vessels
+    ctx.strokeStyle = 'rgba(217, 4, 41, 0.75)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-16, -10);
+    ctx.lineTo(-6, -4);
+    ctx.lineTo(-2, -6);
+    ctx.moveTo(-14, 10);
+    ctx.lineTo(-4, 6);
+    ctx.moveTo(10, -14);
+    ctx.lineTo(4, -8);
+    ctx.stroke();
+
+    // Huge Fiery Crimson Iris
+    const irisGrad = ctx.createRadialGradient(6, 0, 2, 6, 0, 11);
+    irisGrad.addColorStop(0, '#ffbe0b');
+    irisGrad.addColorStop(0.5, '#ff0054');
+    irisGrad.addColorStop(1, '#7209b7');
+    ctx.fillStyle = irisGrad;
+    ctx.beginPath();
+    ctx.arc(6, 0, 11, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dilated Pupil
+    ctx.fillStyle = '#03071e';
+    ctx.beginPath();
+    ctx.arc(7, 0, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Specular Highlights
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(4, -3, 2.5, 0, Math.PI * 2);
+    ctx.arc(8, 2, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Severed Optic Nerve on Top
+    ctx.fillStyle = '#800f2f';
+    ctx.beginPath();
+    ctx.roundRect(-6, -26, 12, 7, 3);
+    ctx.fill();
+  }
+
+  // 6. Level 6: Venom Arachnotron (6-eyed purple alien spider titan)
+  drawArachnotron(ctx, b) {
+    const walk = Math.sin(b.phase * 4);
+
+    // 6 Scuttling Alien Legs
+    ctx.strokeStyle = '#3a0ca3';
+    ctx.lineWidth = 3.2;
+    const aLegs = [
+      [-16, -2, -32 + walk * 4, -12, -36 + walk * 5, 22],
+      [-12, 4, -26 - walk * 4, 10, -28 - walk * 5, 22],
+      [-8, 8, -20 + walk * 4, 14, -20 + walk * 5, 22],
+      [8, 8, 20 - walk * 4, 14, 20 - walk * 5, 22],
+      [12, 4, 26 + walk * 4, 10, 28 + walk * 5, 22],
+      [16, -2, 32 - walk * 4, -12, 36 - walk * 5, 22]
+    ];
+    for (let l of aLegs) {
+      ctx.beginPath();
+      ctx.moveTo(l[0], l[1]);
+      ctx.lineTo(l[2], l[3]);
+      ctx.lineTo(l[4], l[5]);
+      ctx.stroke();
+    }
+
+    // Bulbous Alien Abdomen
+    const bodyGrad = ctx.createLinearGradient(0, -22, 0, 18);
+    bodyGrad.addColorStop(0, '#7209b7');
+    bodyGrad.addColorStop(1, '#10002b');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 24, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#05010a';
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    // Magenta Chevron Bio-Markings
+    ctx.strokeStyle = '#ff007f';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, -8);
+    ctx.lineTo(0, -2);
+    ctx.lineTo(10, -8);
+    ctx.moveTo(-8, 0);
+    ctx.lineTo(0, 5);
+    ctx.lineTo(8, 0);
+    ctx.stroke();
+
+    // 6 Glowing Acid-Green Eyes (2 rows of 3)
+    ctx.fillStyle = '#39ff14';
+    ctx.shadowColor = '#39ff14';
+    ctx.shadowBlur = 10;
+    const eyes = [
+      [8, -6, 2.5], [14, -7, 2.8], [20, -5, 2.2],
+      [8, 1, 2.2], [14, 0, 2.6], [19, 1, 2.0]
+    ];
+    for (let e of eyes) {
+      ctx.beginPath();
+      ctx.arc(e[0], e[1], e[2], 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.shadowBlur = 0;
+
+    // Dripping Venom Mandibles
+    ctx.fillStyle = '#4cc9f0';
+    ctx.beginPath();
+    ctx.moveTo(18, 5);
+    ctx.lineTo(26, 12);
+    ctx.lineTo(20, 15);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // 7. Level 7: Dune Fang Lurker (Blue-slate fanged dinosaur cave beast)
+  drawLurker(ctx, b) {
+    const walk = Math.sin(b.phase * 3);
+
+    // Powerful Quadruped Legs
+    ctx.fillStyle = '#1d3557';
+    ctx.strokeStyle = '#0d1b2a';
+    ctx.lineWidth = 2.4;
+
+    ctx.beginPath();
+    ctx.roundRect(-22 + walk * 3, 8, 10, 16, 3);
+    ctx.roundRect(10 - walk * 3, 8, 10, 16, 3);
+    ctx.fill();
+    ctx.stroke();
+
+    // Blue Beast Torso
+    const lurkGrad = ctx.createLinearGradient(-26, -14, 26, 14);
+    lurkGrad.addColorStop(0, '#457b9d');
+    lurkGrad.addColorStop(1, '#1d3557');
+    ctx.fillStyle = lurkGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 26, 16, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Spiny Amber Ridge along spine
+    ctx.fillStyle = '#e7a93b';
+    const spines = [-18, -10, -2, 6, 14];
+    for (let sx of spines) {
+      ctx.beginPath();
+      ctx.moveTo(sx - 3, -14);
+      ctx.lineTo(sx, -24);
+      ctx.lineTo(sx + 3, -14);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Predatory Dinosaur Maw & Fangs
+    ctx.fillStyle = '#457b9d';
+    ctx.beginPath();
+    ctx.roundRect(16, -10, 18, 16, 4);
+    ctx.fill();
+    ctx.stroke();
+
+    // Rows of razor teeth
+    ctx.fillStyle = '#ffffff';
+    for (let tx = 18; tx <= 30; tx += 4) {
+      ctx.beginPath();
+      ctx.moveTo(tx - 1, -2);
+      ctx.lineTo(tx + 1, -2);
+      ctx.lineTo(tx, 3);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Piercing Amber Eye
+    ctx.fillStyle = '#ffd60a';
+    ctx.beginPath();
+    ctx.arc(20, -5, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#03071e';
+    ctx.fillRect(20, -7, 1.5, 4);
+  }
+
+  // 8. Level 8: Vespoid Sky-Wasp (Armored hornet queen with buzzing wings and stinger)
+  drawWasp(ctx, b) {
+    const buzz = Math.sin(Date.now() * 0.05) * 14;
+
+    // Translucent High-Speed Buzzing Wings
+    ctx.fillStyle = 'rgba(175, 238, 238, 0.65)';
+    ctx.strokeStyle = '#caf0f8';
+    ctx.lineWidth = 1.8;
+
+    // Upper and lower wing sets
+    ctx.beginPath();
+    ctx.ellipse(-6, -18 + buzz, 18, 7, -0.6, 0, Math.PI * 2);
+    ctx.ellipse(8, -20 - buzz, 20, 8, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Armored Amber & Black Striped Abdomen
+    ctx.fillStyle = '#fca311';
+    ctx.beginPath();
+    ctx.ellipse(-14, 4, 18, 12, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#14213d';
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    // Hazard Stripes
+    ctx.fillStyle = '#14213d';
+    ctx.fillRect(-22, -4, 4, 16);
+    ctx.fillRect(-14, -6, 4, 20);
+    ctx.fillRect(-6, -8, 4, 22);
+
+    // Deadly Stinger Barb with Poison Spark
+    ctx.fillStyle = '#ff0054';
+    ctx.shadowColor = '#ff0054';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(-30, 2);
+    ctx.lineTo(-38, 6);
+    ctx.lineTo(-28, 9);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Head & Thorax
+    ctx.fillStyle = '#14213d';
+    ctx.beginPath();
+    ctx.roundRect(8, -10, 16, 16, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Ruby Compound Eye
+    ctx.fillStyle = '#d90429';
+    ctx.beginPath();
+    ctx.ellipse(18, -4, 5, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(17, -5, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 9. Level 9: Magma Spiketooth Snail (Volcanic obsidian snail with eye stalks)
+  drawSnail(ctx, b) {
+    const footWobble = Math.sin(b.phase * 3) * 2;
+
+    // Molten Lava Foot
+    const lavaGrad = ctx.createLinearGradient(-30, 16, 30, 16);
+    lavaGrad.addColorStop(0, '#d00000');
+    lavaGrad.addColorStop(0.5, '#ff5400');
+    lavaGrad.addColorStop(1, '#ffba08');
+    ctx.fillStyle = lavaGrad;
+    ctx.beginPath();
+    ctx.roundRect(-28, 12 + footWobble, 56, 12, 6);
+    ctx.fill();
+
+    ctx.strokeStyle = '#370617';
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    // Volcanic Basalt Spiral Shell
+    ctx.fillStyle = '#212529';
+    ctx.beginPath();
+    ctx.arc(-4, 0, 22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Glowing Magma Fissures on Shell
+    ctx.strokeStyle = '#ff5400';
+    ctx.shadowColor = '#ff5400';
+    ctx.shadowBlur = 10;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.arc(-4, 0, 14, 0.4, 4.5, false);
+    ctx.arc(-4, 0, 7, 1.5, 5.8, false);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Fiery Obsidian Spikes on Shell
+    ctx.fillStyle = '#370617';
+    const shellSpikes = [[-18, -16, -26, -24], [-2, -22, -4, -32], [14, -14, 22, -22]];
+    for (let sp of shellSpikes) {
+      ctx.beginPath();
+      ctx.moveTo(sp[0] - 3, sp[1]);
+      ctx.lineTo(sp[2], sp[3]);
+      ctx.lineTo(sp[0] + 3, sp[1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Two Articulated Eye Stalks
+    ctx.strokeStyle = '#ff7b00';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(14, 12);
+    ctx.quadraticCurveTo(22, 0, 20, -14);
+    ctx.moveTo(18, 12);
+    ctx.quadraticCurveTo(28, 2, 28, -12);
+    ctx.stroke();
+
+    // Eye Orbs on tips
+    ctx.fillStyle = '#ffd60a';
+    ctx.beginPath();
+    ctx.arc(20, -14, 4.5, 0, Math.PI * 2);
+    ctx.arc(28, -12, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#03071e';
+    ctx.beginPath();
+    ctx.arc(21, -14, 2, 0, Math.PI * 2);
+    ctx.arc(29, -12, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 10. Level 10: Astral Octo-Beast (Final Boss: Eldritch crimson/purple octopus)
+  drawOcto(ctx, b) {
+    // Cosmic Void Distortion Halo
+    ctx.shadowColor = '#7209b7';
+    ctx.shadowBlur = 24;
+
+    // 6 Undulating Writhing Tentacles
+    ctx.fillStyle = '#560bad';
+    ctx.strokeStyle = '#00f0ff';
+    ctx.lineWidth = 1.6;
+
+    for (let i = 0; i < 6; i++) {
+      const wave = Math.sin(b.phase * 3 + i * 0.9) * 8;
+      const tx = -20 + i * 8;
+      ctx.beginPath();
+      ctx.moveTo(tx, 14);
+      ctx.quadraticCurveTo(tx + wave, 24, tx + wave * 1.5, 34);
+      ctx.lineTo(tx + 4 + wave * 1.5, 34);
+      ctx.quadraticCurveTo(tx + 4 + wave, 24, tx + 4, 14);
+      ctx.closePath();
+      ctx.fill();
+
+      // Glowing Cyan Suction Cups
+      ctx.fillStyle = '#00f0ff';
+      ctx.beginPath();
+      ctx.arc(tx + wave, 24, 2, 0, Math.PI * 2);
+      ctx.arc(tx + wave * 1.4, 30, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#560bad';
+    }
+
+    // Eldritch Void Mantle Head
+    const octoGrad = ctx.createRadialGradient(0, -8, 4, 0, -4, 26);
+    octoGrad.addColorStop(0, '#f72585');
+    octoGrad.addColorStop(0.6, '#7209b7');
+    octoGrad.addColorStop(1, '#3a0ca3');
+    ctx.fillStyle = octoGrad;
+
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 26, 22, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#10002b';
+    ctx.lineWidth = 2.6;
+    ctx.stroke();
+
+    // Constellation Star Markings on Forehead
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(-8, -14, 1.5, 0, Math.PI * 2);
+    ctx.arc(0, -18, 2, 0, Math.PI * 2);
+    ctx.arc(8, -14, 1.5, 0, Math.PI * 2);
+    ctx.arc(-4, -10, 1.2, 0, Math.PI * 2);
+    ctx.arc(4, -10, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 4 Hypnotic Golden Eyes
+    ctx.fillStyle = '#ffd60a';
+    ctx.shadowColor = '#ffd60a';
+    ctx.shadowBlur = 10;
+    const oEyes = [-15, -6, 4, 13];
+    for (let ox of oEyes) {
+      ctx.beginPath();
+      ctx.ellipse(ox, 2, 3.8, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Horizontal slit pupils
+    ctx.fillStyle = '#10002b';
+    for (let ox of oEyes) {
+      ctx.beginPath();
+      ctx.ellipse(ox, 2, 1.5, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   // --- UI & HUD Synchronization ---
 
   updateHUD() {
