@@ -1,0 +1,335 @@
+:root {
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff0055;
+  --neon-amber: #ffaa00;
+  --neon-green: #00ff88;
+  --dark-bg: rgba(12, 10, 20, 0.85);
+  --panel-border: rgba(0, 240, 255, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #06050b;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  color: #fff;
+}
+
+#canvas-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Crosshair */
+#crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#crosshair::before, #crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--neon-cyan);
+  box-shadow: 0 0 8px var(--neon-cyan);
+}
+
+#crosshair::before {
+  top: 8px;
+  left: 0;
+  width: 18px;
+  height: 2px;
+}
+
+#crosshair::after {
+  top: 0;
+  left: 8px;
+  width: 2px;
+  height: 18px;
+}
+
+/* HUD Overlay */
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 32px;
+}
+
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.hud-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.hud-card {
+  background: var(--dark-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 12px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 12px rgba(0, 240, 255, 0.08);
+  font-family: monospace;
+}
+
+.card-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--neon-cyan);
+  margin-bottom: 6px;
+}
+
+/* Day/Night and Mission Status */
+.mission-box {
+  min-width: 220px;
+}
+
+.cycle-indicator {
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cycle-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: rgba(255, 170, 0, 0.2);
+  color: var(--neon-amber);
+  border: 1px solid var(--neon-amber);
+}
+
+.cycle-badge.night {
+  background: rgba(255, 0, 85, 0.2);
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
+}
+
+/* Player Vitals */
+.vitals-box {
+  width: 280px;
+}
+
+.bar-container {
+  margin-bottom: 8px;
+}
+
+.bar-container:last-child {
+  margin-bottom: 0;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+
+.bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.15s ease-out;
+}
+
+.bar-fill.health {
+  background: linear-gradient(90deg, #ff0055, #ff5500);
+  box-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+}
+
+.bar-fill.stamina {
+  background: linear-gradient(90deg, #00f0ff, #00ff88);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+
+/* Inventory / Ship Parts */
+.inventory-grid {
+  display: flex;
+  gap: 16px;
+}
+
+.item-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+}
+
+.item-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neon-cyan);
+}
+
+/* Click to Play Blocker */
+#blocker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(6, 4, 15, 0.88);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.modal-content {
+  max-width: 600px;
+  background: rgba(18, 12, 32, 0.95);
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.25);
+  border-radius: 12px;
+  padding: 36px 40px;
+  text-align: center;
+}
+
+.game-title {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.8);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--neon-amber);
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+
+.instructions {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.instructions span {
+  color: var(--neon-cyan);
+  font-weight: bold;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #00f0ff, #7928ca);
+  border: none;
+  padding: 14px 36px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-start:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.8);
+}
+
+/* Modals for Leaderboard & Bestiary */
+.nav-buttons {
+  pointer-events: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.hud-btn {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: monospace;
+  transition: all 0.2s;
+}
+
+.hud-btn:hover {
+  background: var(--neon-cyan);
+  color: #000;
+}
+
+.data-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 580px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(14, 10, 26, 0.96);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 8px;
+  padding: 24px;
+  z-index: 200;
+  display: none;
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.data-modal h2 {
+  font-size: 20px;
+  color: var(--neon-cyan);
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+  padding-bottom: 8px;
+}
+
+.close-btn {
+  float: right;
+  background: none;
+  border: none;
+  color: #ff0055;
+  font-size: 20px;
+  cursor: pointer;
+}
