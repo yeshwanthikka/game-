@@ -14,7 +14,7 @@
 
     <!-- In-Game HUD -->
     <header id="hud">
-      <!-- Left: Lives & Power-ups -->
+      <!-- Left: Lives & Power-ups & Weapon Inventory -->
       <div class="hud-group">
         <div class="hud-capsule" title="Lives Remaining">
           <div class="hearts-container">
@@ -35,25 +35,38 @@
           <span id="hud-coins" class="hud-val coins">0</span>
         </div>
 
-        <div id="hud-weapon-capsule" class="hud-capsule weapon-capsule" title="Equipped Weapon (Press F or J to attack)">
+        <div id="hud-weapon-capsule" class="hud-capsule weapon-capsule" title="Equipped Weapon (Click or press Q/E to cycle arsenal)">
+          <button id="hud-prev-wpn-btn" class="hud-wpn-cycle" title="Previous Weapon (Q)">◀</button>
           <span id="hud-weapon-icon" class="hud-icon">⚔️</span>
           <span id="hud-weapon-name" class="hud-val weapon-val">UNARMED</span>
+          <button id="hud-next-wpn-btn" class="hud-wpn-cycle" title="Next Weapon (E)">▶</button>
+        </div>
+
+        <!-- Open World Quest Counters -->
+        <div id="hud-quest-bar" class="hud-capsule quest-capsule" title="Open World Progression">
+          <span class="quest-item" title="Astral Sigils Claimed"><span class="q-icon">👑</span> <span id="hud-sigils-val" class="q-val">0/10</span></span>
+          <span class="quest-divider">•</span>
+          <span class="quest-item" title="Weapons Unlocked"><span class="q-icon">⚔️</span> <span id="hud-weapons-val" class="q-val">0/10</span></span>
+          <span class="quest-divider">•</span>
+          <span class="quest-item" title="Waypoints Activated"><span class="q-icon">🌀</span> <span id="hud-waypoints-val" class="q-val">1/10</span></span>
         </div>
       </div>
 
+      <!-- Right: Biome, Radar Mini-map, Score & Map Modal Button -->
       <div class="hud-group">
-        <div class="hud-capsule" title="Current World Level">
-          <span class="hud-label">WORLD</span>
-          <span id="hud-level" class="hud-val" style="color: var(--neon-cyan);">1-1</span>
+        <div class="hud-capsule biome-capsule" title="Current Realm Biome">
+          <span class="hud-label">REALM</span>
+          <span id="hud-biome-name" class="hud-val biome-val">EMERALD HAVEN</span>
         </div>
 
-        <div class="hud-capsule" title="Current Score">
-          <span class="hud-label">SCORE</span>
-          <span id="hud-score" class="hud-val score">0</span>
+        <!-- Mini-Map Radar -->
+        <div id="hud-minimap-container" class="hud-capsule minimap-capsule" title="Area Radar (Click to open World Map)">
+          <canvas id="hud-minimap-canvas" width="160" height="42"></canvas>
+          <div class="minimap-overlay-label">RADAR</div>
         </div>
 
-        <button id="hud-levels-btn" class="hud-btn" aria-label="Level Select" title="Level Map">
-          <span>🗺️</span>
+        <button id="hud-map-btn" class="hud-btn glow-cyan" aria-label="Open World Map" title="Open World Map (M)">
+          <span>🗺️ MAP</span>
         </button>
 
         <button id="hud-sound-btn" class="hud-btn" aria-label="Toggle Sound" title="Toggle Sound">
@@ -87,7 +100,9 @@
       <button id="mobile-right-btn" class="dpad-btn" aria-label="Move Right">▶</button>
     </div>
     <div id="mobile-touch-zone">
+      <button id="mobile-prev-wpn" class="mobile-wpn-btn" aria-label="Previous Weapon">◀W</button>
       <button id="mobile-attack-btn" class="attack-touch-btn" aria-label="Attack Button">🔥</button>
+      <button id="mobile-next-wpn" class="mobile-wpn-btn" aria-label="Next Weapon">W▶</button>
       <button id="mobile-jump-btn" class="jump-touch-btn" aria-label="Jump Button">JUMP</button>
     </div>
 
@@ -95,7 +110,7 @@
     <div id="home-overlay" class="overlay">
       <div class="modal-box">
         <h1 class="game-title">STAR RUNNER</h1>
-        <p class="game-subtitle">COSMIC ACTION ADVENTURE</p>
+        <p class="game-subtitle">OPEN WORLD COSMIC ADVENTURE</p>
 
         <div class="best-score-pill">
           <span>🏆 BEST RECORD:</span>
@@ -104,10 +119,10 @@
 
         <div class="btn-row">
           <button id="home-play-btn" class="btn btn-primary">
-            <span>▶ START ADVENTURE</span>
+            <span>▶ EXPLORE OPEN REALM</span>
           </button>
           <button id="home-levels-btn" class="btn btn-secondary">
-            <span>🗺️ SELECT LEVEL</span>
+            <span>🗺️ WORLD MAP & WAYPOINTS</span>
           </button>
           <button id="home-custom-btn" class="btn btn-secondary">
             <span>🎨 CUSTOMIZE CHARACTER</span>
@@ -118,13 +133,16 @@
           <span>Move:</span>
           <span class="key-badge">A / D</span>
           <span class="key-badge">◀ / ▶</span>
-          <span>• Jump & Stomp:</span>
+          <span>• Jump:</span>
           <span class="key-badge">SPACE</span>
           <span class="key-badge">W</span>
           <span>• Attack:</span>
-          <span class="key-badge">F</span>
-          <span class="key-badge">J</span>
-          <span class="key-badge">SHIFT</span>
+          <span class="key-badge">F / J</span>
+          <span>• Arsenal:</span>
+          <span class="key-badge">Q / E</span>
+          <span class="key-badge">1 - 0</span>
+          <span>• Map:</span>
+          <span class="key-badge">M</span>
         </div>
       </div>
     </div>
@@ -329,25 +347,45 @@
       </div>
     </div>
 
-    <!-- LEVEL SELECT MODAL -->
-    <div id="levels-overlay" class="overlay hidden">
-      <div class="modal-box levels-box">
-        <h2 class="game-title" style="font-size: 2.4rem;">WORLD MAP</h2>
-        <p class="game-subtitle">CHOOSE YOUR MISSION (10 LEVELS)</p>
+    <!-- FULL-SCREEN OPEN WORLD MAP & FAST TRAVEL MODAL -->
+    <div id="worldmap-overlay" class="overlay hidden">
+      <div class="modal-box worldmap-box">
+        <div class="worldmap-header">
+          <div>
+            <h2 class="game-title" style="font-size: 2.2rem; text-align: left;">ASTRAL ARCHIPELAGO</h2>
+            <p class="game-subtitle" style="text-align: left;">SEAMLESS OPEN WORLD (19,000+ PX CONTINUUM) • FAST TRAVEL</p>
+          </div>
+          <button id="worldmap-close-btn" class="worldmap-x-btn" title="Close Map (M / ESC)">✕</button>
+        </div>
 
-        <div class="level-map-toolbar">
-          <button id="btn-unlock-all" class="btn-chip glow-gold">
-            <span>⭐ UNLOCK ALL 10 LEVELS</span>
+        <div class="worldmap-quest-summary">
+          <div class="wm-stat"><span class="wm-icon">👑</span> <strong>ASTRAL SIGILS:</strong> <span id="wm-sigils-count" style="color: var(--neon-cyan);">0 / 10</span></div>
+          <div class="wm-stat"><span class="wm-icon">⚔️</span> <strong>WEAPON ARSENAL:</strong> <span id="wm-weapons-count" style="color: var(--neon-yellow);">0 / 10</span></div>
+          <div class="wm-stat"><span class="wm-icon">🌀</span> <strong>ACTIVE BEACONS:</strong> <span id="wm-beacons-count" style="color: var(--neon-green);">1 / 10</span></div>
+          <button id="btn-unlock-all-beacons" class="btn-chip glow-gold" style="margin-left: auto;">
+            <span>⚡ UNLOCK ALL BEACONS</span>
           </button>
         </div>
 
-        <div id="levels-grid" class="levels-grid">
-          <!-- Dynamically populated 10 Level Cards -->
+        <!-- Landscape Realm Map Canvas -->
+        <div class="worldmap-canvas-container">
+          <canvas id="worldmap-canvas" width="960" height="240"></canvas>
+          <div class="worldmap-hint-banner">
+            <span>💡 Click any lit Waypoint beacon to instantaneously Fast-Travel!</span>
+          </div>
         </div>
 
-        <button id="levels-back-btn" class="btn btn-secondary" style="margin: 0 auto;">
-          <span>← BACK TO MENU</span>
-        </button>
+        <!-- 10 Waypoint Beacons Quick Travel Grid -->
+        <div class="section-label" style="margin-top: 0.8rem;">DISCOVERED WAYPOINT BEACONS (CLICK TO TELEPORT)</div>
+        <div id="worldmap-beacons-list" class="worldmap-beacons-grid">
+          <!-- Dynamically populated 10 Fast Travel Beacons -->
+        </div>
+
+        <div class="btn-row" style="margin-top: 1rem;">
+          <button id="worldmap-resume-btn" class="btn btn-primary" style="min-width: 220px;">
+            <span>✓ RESUME EXPLORATION</span>
+          </button>
+        </div>
       </div>
     </div>
 

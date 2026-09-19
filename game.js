@@ -1,499 +1,241 @@
-// Star Runner — Super Mario Bros Style Level Platformer Engine
-// 10 Handcrafted Themed Levels, Interactive ? Blocks & Bricks, Stompable Cartoon Enemies, Flagpoles, and Full Mario Movement Controls
+// Star Runner — Continuous Open World Platformer Engine
+// 10 Seamless Biomes across 19,000+ Pixels, 10 Fast-Travel Waypoints, 10 Arsenal Weapons, 10 Reference Monster Bosses, Radar Mini-Map & Interactive World Map
 
-const LEVEL_DATA = [
-  {
-    id: 1,
-    title: "Emerald Meadows",
-    subtitle: "WORLD 1-1",
-    theme: "grass",
-    skyTop: "#0f0e26", skyMid: "#23153c", skyBot: "#e58e65",
-    difficulty: "★☆☆☆☆",
-    flagX: 2950,
-    platforms: [
-      { x: -100, y: 500, w: 900 },
-      { x: 920, y: 460, w: 500 },
-      { x: 1540, y: 420, w: 450 },
-      { x: 2100, y: 480, w: 1150 }
-    ],
-    blocks: [
-      { x: 300, y: 350, type: "question", content: "coin" },
-      { x: 340, y: 350, type: "brick" },
-      { x: 380, y: 350, type: "question", content: "star" },
-      { x: 420, y: 350, type: "brick" },
-      { x: 460, y: 350, type: "question", content: "coin" },
-      // Second cluster
-      { x: 1100, y: 320, type: "question", content: "shield" },
-      { x: 1140, y: 320, type: "brick" },
-      { x: 1180, y: 320, type: "question", content: "boost" },
-      // Pipe
-      { x: 700, y: 440, type: "pipe", w: 52, h: 60 }
-    ],
-    hiddenWeapon: {
-      x: 1140, y: 276,
-      weapon: { id: "solar", name: "Solar Blaster", icon: "☀️", dmg: 20, speed: 9.0, color: "#ffd60a", glow: "#ff9e00", ptype: "fireball" }
-    },
-    boss: {
-      name: "Thornshell Cyclops",
-      title: "GROVE BEHEMOTH",
-      type: "thornshell",
-      x: 2450, y: 416, origY: 416,
-      w: 64, h: 64,
-      minX: 2200, maxX: 2820,
-      vx: 1.4,
-      hp: 100,
-      color: "#2d6a4f"
-    },
-    enemies: [
-      { x: 480, y: 468, type: "slime", minX: 200, maxX: 680, vx: -1.2 },
-      { x: 1200, y: 428, type: "slime", minX: 1000, maxX: 1400, vx: 1.2 },
-      { x: 1750, y: 388, type: "slime", minX: 1600, maxX: 1950, vx: -1.4 }
-    ],
-    coins: [
-      { x: 220, y: 450 }, { x: 250, y: 450 }, { x: 280, y: 450 },
-      { x: 620, y: 390 }, { x: 650, y: 370 }, { x: 680, y: 390 },
-      { x: 1650, y: 360 }, { x: 1700, y: 340 }, { x: 1750, y: 360 }
-    ]
-  },
-  {
-    id: 2,
-    title: "Mushroom Heights",
-    subtitle: "WORLD 1-2",
-    theme: "mushroom",
-    skyTop: "#120c29", skyMid: "#3d1b54", skyBot: "#f59e6c",
-    difficulty: "★☆☆☆☆",
-    flagX: 3250,
-    platforms: [
-      { x: -100, y: 500, w: 750 },
-      { x: 760, y: 440, w: 420 },
-      { x: 1280, y: 370, w: 450 },
-      { x: 1830, y: 430, w: 380 },
-      { x: 2310, y: 490, w: 1200 }
-    ],
-    blocks: [
-      { x: 280, y: 360, type: "brick" },
-      { x: 320, y: 360, type: "question", content: "magnet" },
-      { x: 360, y: 360, type: "brick" },
-      { x: 880, y: 310, type: "question", content: "coin" },
-      { x: 920, y: 310, type: "question", content: "boost" },
-      { x: 1400, y: 240, type: "brick" },
-      { x: 1440, y: 240, type: "question", content: "shield" }
-    ],
-    hiddenWeapon: {
-      x: 1420, y: 196,
-      weapon: { id: "spore", name: "Spore Cannon", icon: "🍄", dmg: 22, speed: 8.5, color: "#ff4d6d", glow: "#c9184a", ptype: "spore" }
-    },
-    boss: {
-      name: "Spore Shroomling",
-      title: "MYCELIUM LORD",
-      type: "shroomling",
-      x: 2650, y: 426, origY: 426,
-      w: 64, h: 64,
-      minX: 2400, maxX: 3100,
-      vx: -1.5,
-      hp: 120,
-      color: "#a01a56"
-    },
-    enemies: [
-      { x: 450, y: 468, type: "slime", minX: 200, maxX: 650, vx: -1.4 },
-      { x: 980, y: 408, type: "slime", minX: 800, maxX: 1150, vx: 1.3 },
-      { x: 1500, y: 280, type: "drone", minX: 1350, maxX: 1650, vx: 1.6, origY: 280 }
-    ],
-    coins: [
-      { x: 820, y: 390 }, { x: 850, y: 390 },
-      { x: 1350, y: 320 }, { x: 1390, y: 300 }, { x: 1430, y: 320 }
-    ]
-  },
-  {
-    id: 3,
-    title: "Crystal Caverns",
-    subtitle: "WORLD 2-1",
-    theme: "crystal",
-    skyTop: "#080b18", skyMid: "#111d3d", skyBot: "#00f0ff",
-    difficulty: "★★☆☆☆",
-    flagX: 3450,
-    platforms: [
-      { x: -100, y: 500, w: 700 },
-      { x: 700, y: 460, w: 460 },
-      { x: 1260, y: 480, w: 500 },
-      { x: 1860, y: 420, w: 400 },
-      { x: 2360, y: 490, w: 1300 }
-    ],
-    blocks: [
-      { x: 300, y: 360, type: "question", content: "coin" },
-      { x: 340, y: 360, type: "brick" },
-      { x: 380, y: 360, type: "question", content: "shield" },
-      { x: 850, y: 330, type: "pipe", w: 52, h: 70 },
-      { x: 1450, y: 340, type: "question", content: "magnet" }
-    ],
-    hiddenWeapon: {
-      x: 1450, y: 296,
-      weapon: { id: "crystal", name: "Crystal Darts", icon: "💎", dmg: 25, speed: 9.5, color: "#00f0ff", glow: "#0077b6", ptype: "crystal" }
-    },
-    boss: {
-      name: "Crypt Skel-Knight",
-      title: "SPECTRAL OVERLORD",
-      type: "skeleton",
-      x: 2750, y: 390, origY: 390,
-      w: 64, h: 64,
-      minX: 2450, maxX: 3300,
-      vx: 1.6,
-      hp: 140,
-      color: "#e2e8f0"
-    },
-    enemies: [
-      { x: 400, y: 468, type: "spiky", minX: 250, maxX: 600, vx: 1.0 },
-      { x: 950, y: 428, type: "slime", minX: 850, maxX: 1100, vx: -1.4 },
-      { x: 1550, y: 448, type: "spiky", minX: 1350, maxX: 1700, vx: -1.2 },
-      { x: 2000, y: 388, type: "slime", minX: 1900, maxX: 2200, vx: 1.5 }
-    ],
-    coins: [
-      { x: 500, y: 450 }, { x: 540, y: 450 },
-      { x: 1050, y: 400 }, { x: 1090, y: 400 },
-      { x: 1950, y: 360 }, { x: 1990, y: 360 }
-    ]
-  },
-  {
-    id: 4,
-    title: "Sunset Bridges",
-    subtitle: "WORLD 2-2",
-    theme: "grass",
-    skyTop: "#1c0d2b", skyMid: "#5a1f49", skyBot: "#fca371",
-    difficulty: "★★☆☆☆",
-    flagX: 3550,
-    platforms: [
-      { x: -100, y: 500, w: 650 },
-      { x: 670, y: 440, w: 320 },
-      { x: 1100, y: 460, w: 260, type: "moving", moveSpeed: 0.02, moveRange: 45 },
-      { x: 1480, y: 410, w: 420 },
-      { x: 2020, y: 450, w: 280, type: "moving", moveSpeed: 0.025, moveRange: 50 },
-      { x: 2420, y: 490, w: 1350 }
-    ],
-    blocks: [
-      { x: 250, y: 360, type: "question", content: "coin" },
-      { x: 290, y: 360, type: "brick" },
-      { x: 330, y: 360, type: "question", content: "boost" },
-      { x: 1600, y: 280, type: "question", content: "shield" }
-    ],
-    hiddenWeapon: {
-      x: 1600, y: 236,
-      weapon: { id: "sunfire", name: "Sunfire Wand", icon: "🔥", dmg: 26, speed: 9.0, color: "#ff7b00", glow: "#ff0054", ptype: "wand" }
-    },
-    boss: {
-      name: "Gloom Grimoire",
-      title: "FORBIDDEN ARCHIVE",
-      type: "grimoire",
-      x: 2850, y: 390, origY: 390,
-      w: 64, h: 64,
-      minX: 2550, maxX: 3400,
-      vx: -1.6,
-      hp: 160,
-      color: "#6b21a8"
-    },
-    enemies: [
-      { x: 420, y: 468, type: "slime", minX: 200, maxX: 580, vx: -1.5 },
-      { x: 1620, y: 378, type: "drone", minX: 1520, maxX: 1820, vx: 1.8, origY: 330 }
-    ],
-    coins: [
-      { x: 740, y: 380 }, { x: 780, y: 380 },
-      { x: 1180, y: 390 }, { x: 1220, y: 390 }
-    ]
-  },
-  {
-    id: 5,
-    title: "Tree-Top Canopy",
-    subtitle: "WORLD 3-1",
-    theme: "grass",
-    skyTop: "#0d1b2a", skyMid: "#1b4332", skyBot: "#74c69d",
-    difficulty: "★★★☆☆",
-    flagX: 3800,
-    platforms: [
-      { x: -100, y: 500, w: 600 },
-      { x: 620, y: 410, w: 400 },
-      { x: 1120, y: 340, w: 450 },
-      { x: 1670, y: 400, w: 380 },
-      { x: 2150, y: 460, w: 400 },
-      { x: 2650, y: 500, w: 1400 }
-    ],
-    blocks: [
-      { x: 200, y: 350, type: "question", content: "shield" },
-      { x: 750, y: 280, type: "question", content: "coin" },
-      { x: 790, y: 280, type: "brick" },
-      { x: 830, y: 280, type: "question", content: "boost" },
-      { x: 1280, y: 210, type: "question", content: "coin" }
-    ],
-    hiddenWeapon: {
-      x: 1280, y: 166,
-      weapon: { id: "boomerang", name: "Thorn Boomerang", icon: "🪃", dmg: 28, speed: 9.5, color: "#52b788", glow: "#1b4332", ptype: "boomerang" }
-    },
-    boss: {
-      name: "Ocular Stalker",
-      title: "WATCHER IN THE DARK",
-      type: "ocular",
-      x: 3100, y: 436, origY: 436,
-      w: 64, h: 64,
-      minX: 2750, maxX: 3650,
-      vx: 1.7,
-      hp: 180,
-      color: "#ef233c"
-    },
-    enemies: [
-      { x: 380, y: 468, type: "slime", minX: 180, maxX: 550, vx: -1.6 },
-      { x: 800, y: 378, type: "slime", minX: 680, maxX: 950, vx: 1.5 },
-      { x: 1300, y: 308, type: "drone", minX: 1180, maxX: 1500, vx: 1.9, origY: 270 }
-    ],
-    coins: [
-      { x: 700, y: 350 }, { x: 740, y: 350 },
-      { x: 1250, y: 280 }, { x: 1290, y: 280 }
-    ]
-  },
-  {
-    id: 6,
-    title: "Neon Cyberzone",
-    subtitle: "WORLD 3-2",
-    theme: "crystal",
-    skyTop: "#070817", skyMid: "#1a0b38", skyBot: "#ff007f",
-    difficulty: "★★★☆☆",
-    flagX: 3900,
-    platforms: [
-      { x: -100, y: 500, w: 600 },
-      { x: 620, y: 450, w: 320, type: "moving", moveSpeed: 0.03, moveRange: 55 },
-      { x: 1060, y: 400, w: 440 },
-      { x: 1620, y: 430, w: 350, type: "moving", moveSpeed: 0.035, moveRange: 60 },
-      { x: 2090, y: 420, w: 420 },
-      { x: 2630, y: 490, w: 1450 }
-    ],
-    blocks: [
-      { x: 250, y: 360, type: "question", content: "magnet" },
-      { x: 1200, y: 280, type: "question", content: "boost" },
-      { x: 1240, y: 280, type: "brick" },
-      { x: 1280, y: 280, type: "question", content: "shield" }
-    ],
-    hiddenWeapon: {
-      x: 1240, y: 236,
-      weapon: { id: "plasma", name: "Plasma Laser", icon: "⚡", dmg: 30, speed: 11.0, color: "#c77dff", glow: "#7209b7", ptype: "laser" }
-    },
-    boss: {
-      name: "Venom Arachnotron",
-      title: "HEXA-EYED PREDATOR",
-      type: "arachnotron",
-      x: 3150, y: 426, origY: 426,
-      w: 64, h: 64,
-      minX: 2750, maxX: 3750,
-      vx: -1.8,
-      hp: 200,
-      color: "#4a044e"
-    },
-    enemies: [
-      { x: 400, y: 468, type: "spiky", minX: 200, maxX: 550, vx: 1.4 },
-      { x: 1250, y: 368, type: "slime", minX: 1120, maxX: 1450, vx: -1.7 },
-      { x: 2200, y: 388, type: "drone", minX: 2120, maxX: 2450, vx: 2.1, origY: 350 }
-    ],
-    coins: [
-      { x: 300, y: 440 }, { x: 340, y: 440 },
-      { x: 1150, y: 340 }, { x: 1190, y: 340 }
-    ]
-  },
-  {
-    id: 7,
-    title: "Desert Ruins",
-    subtitle: "WORLD 4-1",
-    theme: "mushroom",
-    skyTop: "#1c1106", skyMid: "#42280d", skyBot: "#e7a93b",
-    difficulty: "★★★★☆",
-    flagX: 4100,
-    platforms: [
-      { x: -100, y: 500, w: 550 },
-      { x: 570, y: 440, w: 360 },
-      { x: 1040, y: 470, w: 480 },
-      { x: 1640, y: 390, w: 420 },
-      { x: 2180, y: 430, w: 450 },
-      { x: 2750, y: 490, w: 1550 }
-    ],
-    blocks: [
-      { x: 200, y: 360, type: "question", content: "shield" },
-      { x: 700, y: 310, type: "brick" },
-      { x: 740, y: 310, type: "question", content: "coin" },
-      { x: 780, y: 310, type: "brick" },
-      { x: 1750, y: 260, type: "question", content: "boost" }
-    ],
-    hiddenWeapon: {
-      x: 1750, y: 216,
-      weapon: { id: "chakram", name: "Sand Chakram", icon: "💿", dmg: 32, speed: 9.5, color: "#e7a93b", glow: "#bc6c25", ptype: "chakram" }
-    },
-    boss: {
-      name: "Dune Fang Lurker",
-      title: "ABYSSAL REPTILIAN",
-      type: "lurker",
-      x: 3300, y: 426, origY: 426,
-      w: 64, h: 64,
-      minX: 2880, maxX: 3950,
-      vx: 1.8,
-      hp: 220,
-      color: "#1d3557"
-    },
-    enemies: [
-      { x: 350, y: 468, type: "spiky", minX: 150, maxX: 500, vx: -1.4 },
-      { x: 1200, y: 438, type: "spiky", minX: 1080, maxX: 1450, vx: 1.5 },
-      { x: 1800, y: 358, type: "slime", minX: 1680, maxX: 2000, vx: -1.8 },
-      { x: 2350, y: 398, type: "drone", minX: 2220, maxX: 2550, vx: 2.2, origY: 360 }
-    ],
-    coins: [
-      { x: 620, y: 380 }, { x: 660, y: 380 },
-      { x: 1100, y: 410 }, { x: 1140, y: 410 }
-    ]
-  },
-  {
-    id: 8,
-    title: "Sky Kingdom",
-    subtitle: "WORLD 4-2",
-    theme: "grass",
-    skyTop: "#081c30", skyMid: "#19456b", skyBot: "#a8dadc",
-    difficulty: "★★★★☆",
-    flagX: 4300,
-    platforms: [
-      { x: -100, y: 500, w: 500 },
-      { x: 520, y: 430, w: 320 },
-      { x: 960, y: 380, w: 340, type: "moving", moveSpeed: 0.035, moveRange: 55 },
-      { x: 1420, y: 440, w: 400 },
-      { x: 1940, y: 370, w: 360, type: "moving", moveSpeed: 0.04, moveRange: 65 },
-      { x: 2420, y: 430, w: 400 },
-      { x: 2940, y: 490, w: 1550 }
-    ],
-    blocks: [
-      { x: 150, y: 360, type: "question", content: "boost" },
-      { x: 620, y: 300, type: "question", content: "shield" },
-      { x: 1520, y: 320, type: "question", content: "magnet" }
-    ],
-    hiddenWeapon: {
-      x: 1520, y: 276,
-      weapon: { id: "thunder", name: "Thunderbolt Rod", icon: "⚡", dmg: 35, speed: 10.5, color: "#48cae4", glow: "#0096c7", ptype: "thunder" }
-    },
-    boss: {
-      name: "Vespoid Sky-Wasp",
-      title: "HORNET QUEEN",
-      type: "wasp",
-      x: 3450, y: 370, origY: 370,
-      w: 64, h: 64,
-      minX: 3050, maxX: 4150,
-      vx: 1.9,
-      hp: 240,
-      color: "#fca311"
-    },
-    enemies: [
-      { x: 300, y: 468, type: "slime", minX: 100, maxX: 450, vx: 1.7 },
-      { x: 1550, y: 408, type: "drone", minX: 1450, maxX: 1780, vx: 2.3, origY: 370 },
-      { x: 2550, y: 398, type: "spiky", minX: 2450, maxX: 2780, vx: -1.6 }
-    ],
-    coins: [
-      { x: 570, y: 370 }, { x: 610, y: 370 },
-      { x: 1020, y: 310 }, { x: 1060, y: 310 }
-    ]
-  },
-  {
-    id: 9,
-    title: "Molten Magma Peaks",
-    subtitle: "WORLD 5-1",
-    theme: "crystal",
-    skyTop: "#1c0404", skyMid: "#450808", skyBot: "#ff5400",
-    difficulty: "★★★★★",
-    flagX: 4750,
-    platforms: [
-      { x: -100, y: 500, w: 480 },
-      { x: 490, y: 430, w: 320 },
-      { x: 920, y: 470, w: 360 },
-      { x: 1390, y: 410, w: 380 },
-      { x: 1880, y: 440, w: 340, type: "moving", moveSpeed: 0.045, moveRange: 60 },
-      { x: 2340, y: 390, w: 420 },
-      { x: 2880, y: 450, w: 380 },
-      { x: 3380, y: 500, w: 1600 }
-    ],
-    blocks: [
-      { x: 180, y: 350, type: "question", content: "shield" },
-      { x: 600, y: 300, type: "brick" },
-      { x: 640, y: 300, type: "question", content: "boost" },
-      { x: 1500, y: 280, type: "question", content: "shield" }
-    ],
-    hiddenWeapon: {
-      x: 2340, y: 340,
-      weapon: { id: "bomb", name: "Magma Bomb", icon: "💣", dmg: 38, speed: 8.5, color: "#ff5400", glow: "#9d0208", ptype: "bomb" }
-    },
-    boss: {
-      name: "Magma Spiketooth Snail",
-      title: "CALDERA JUGGERNAUT",
-      type: "snail",
-      x: 3850, y: 436, origY: 436,
-      w: 64, h: 64,
-      minX: 3500, maxX: 4600,
-      vx: -1.5,
-      hp: 260,
-      color: "#d00000"
-    },
-    enemies: [
-      { x: 250, y: 468, type: "spiky", minX: 100, maxX: 430, vx: -1.8 },
-      { x: 1050, y: 438, type: "spiky", minX: 950, maxX: 1250, vx: 1.8 },
-      { x: 1520, y: 378, type: "drone", minX: 1420, maxX: 1720, vx: 2.4, origY: 340 },
-      { x: 2500, y: 358, type: "slime", minX: 2380, maxX: 2720, vx: -2.0 }
-    ],
-    coins: [
-      { x: 550, y: 370 }, { x: 590, y: 370 },
-      { x: 1450, y: 350 }, { x: 1490, y: 350 }
-    ]
-  },
-  {
-    id: 10,
-    title: "Cosmic Star Citadel",
-    subtitle: "WORLD 5-2 (FINAL)",
-    theme: "crystal",
-    skyTop: "#050614", skyMid: "#190833", skyBot: "#ffd60a",
-    difficulty: "★★★★★",
-    flagX: 5600,
-    platforms: [
-      { x: -100, y: 500, w: 450 },
-      { x: 470, y: 430, w: 340 },
-      { x: 920, y: 380, w: 360, type: "moving", moveSpeed: 0.045, moveRange: 60 },
-      { x: 1390, y: 450, w: 420 },
-      { x: 1920, y: 390, w: 380, type: "moving", moveSpeed: 0.05, moveRange: 65 },
-      { x: 2410, y: 440, w: 450 },
-      { x: 2970, y: 380, w: 420 },
-      { x: 3500, y: 440, w: 450 },
-      { x: 4070, y: 500, w: 1800 }
-    ],
-    blocks: [
-      { x: 150, y: 360, type: "question", content: "shield" },
-      { x: 600, y: 300, type: "question", content: "boost" },
-      { x: 1520, y: 320, type: "question", content: "magnet" },
-      { x: 2550, y: 310, type: "question", content: "shield" },
-      { x: 3650, y: 310, type: "question", content: "boost" }
-    ],
-    hiddenWeapon: {
-      x: 2550, y: 266,
-      weapon: { id: "nova", name: "Cosmic Nova", icon: "🌌", dmg: 42, speed: 11.5, color: "#f72585", glow: "#7209b7", ptype: "nova" }
-    },
-    boss: {
-      name: "Astral Octo-Beast",
-      title: "ELDRITCH VOID TITAN",
-      type: "octo",
-      x: 4650, y: 436, origY: 436,
-      w: 68, h: 68,
-      minX: 4200, maxX: 5450,
-      vx: 2.0,
-      hp: 300,
-      color: "#7209b7"
-    },
-    enemies: [
-      { x: 250, y: 468, type: "spiky", minX: 100, maxX: 400, vx: 2.0 },
-      { x: 1500, y: 418, type: "drone", minX: 1420, maxX: 1760, vx: 2.6, origY: 380 },
-      { x: 2550, y: 408, type: "spiky", minX: 2440, maxX: 2820, vx: -2.0 },
-      { x: 3100, y: 348, type: "drone", minX: 3000, maxX: 3350, vx: 2.8, origY: 310 },
-      { x: 3650, y: 408, type: "slime", minX: 3530, maxX: 3900, vx: -2.2 }
-    ],
-    coins: [
-      { x: 530, y: 370 }, { x: 570, y: 370 },
-      { x: 1450, y: 390 }, { x: 1490, y: 390 },
-      { x: 2500, y: 380 }, { x: 2540, y: 380 }
-    ]
-  }
+const BIOME_ZONES = [
+  { id: 1, name: "Emerald Haven", code: "ZONE-01", startX: -100, endX: 1950, theme: "grass", skyTop: "#0f0e26", skyMid: "#23153c", skyBot: "#e58e65", ambientColor: "#10b981", desc: "Verdant starting hub with rolling hills and ancient ruins." },
+  { id: 2, name: "Mycelium Marsh", code: "ZONE-02", startX: 1950, endX: 3850, theme: "mushroom", skyTop: "#120c29", skyMid: "#3d1b54", skyBot: "#f59e6c", ambientColor: "#ff4d6d", desc: "Bioluminescent swamp filled with bouncing giant fungi." },
+  { id: 3, name: "Crystal Caverns", code: "ZONE-03", startX: 3850, endX: 5750, theme: "crystal", skyTop: "#080b18", skyMid: "#111d3d", skyBot: "#00f0ff", ambientColor: "#00f0ff", desc: "Deep subterranean chasm glowing with azure quartz prisms." },
+  { id: 4, name: "Sunset Bridges", code: "ZONE-04", startX: 5750, endX: 7650, theme: "grass", skyTop: "#1c0d2b", skyMid: "#5a1f49", skyBot: "#fca371", ambientColor: "#f77f00", desc: "Suspension bridges stretching over bottomless golden valleys." },
+  { id: 5, name: "Verdant Canopy", code: "ZONE-05", startX: 7650, endX: 9550, theme: "grass", skyTop: "#0d1b2a", skyMid: "#1b4332", skyBot: "#74c69d", ambientColor: "#2ec4b6", desc: "Towering colossal redwoods with high aerial branches." },
+  { id: 6, name: "Neon Cyber-Sector", code: "ZONE-06", startX: 9550, endX: 11450, theme: "crystal", skyTop: "#070817", skyMid: "#1a0b38", skyBot: "#ff007f", ambientColor: "#c77dff", desc: "Techno-metropolis ruins humming with antigrav energy." },
+  { id: 7, name: "Dune Ruins", code: "ZONE-07", startX: 11450, endX: 13350, theme: "mushroom", skyTop: "#1c1106", skyMid: "#42280d", skyBot: "#e7a93b", ambientColor: "#e7a93b", desc: "Endless desert sands surrounding fallen imperial monoliths." },
+  { id: 8, name: "Sky Kingdom", code: "ZONE-08", startX: 13350, endX: 15250, theme: "grass", skyTop: "#081c30", skyMid: "#19456b", skyBot: "#a8dadc", ambientColor: "#48cae4", desc: "Levitating celestial isles drifting in the upper stratosphere." },
+  { id: 9, name: "Molten Caldera", code: "ZONE-09", startX: 15250, endX: 17150, theme: "crystal", skyTop: "#1c0404", skyMid: "#450808", skyBot: "#ff5400", ambientColor: "#ff5400", desc: "Volcanic magma chasms and scorching geysers." },
+  { id: 10, name: "Astral Void Citadel", code: "ZONE-10", startX: 17150, endX: 19800, theme: "crystal", skyTop: "#050614", skyMid: "#190833", skyBot: "#ffd60a", ambientColor: "#f72585", desc: "The cosmic threshold housing the Great Star Gate." }
+];
+
+const WAYPOINTS_DATA = [
+  { id: 1, name: "Haven Sanctum", biome: "Emerald Haven", x: 140, y: 460, defaultActive: true },
+  { id: 2, name: "Spore Sanctum", biome: "Mycelium Marsh", x: 2150, y: 440 },
+  { id: 3, name: "Crystal Grotto", biome: "Crystal Caverns", x: 4050, y: 450 },
+  { id: 4, name: "Sunset Arch", biome: "Sunset Bridges", x: 5950, y: 450 },
+  { id: 5, name: "High Canopy", biome: "Verdant Canopy", x: 7850, y: 460 },
+  { id: 6, name: "Grid Terminal", biome: "Neon Cyber-Sector", x: 9750, y: 450 },
+  { id: 7, name: "Dune Oasis", biome: "Dune Ruins", x: 11650, y: 450 },
+  { id: 8, name: "Aether Roost", biome: "Sky Kingdom", x: 13550, y: 440 },
+  { id: 9, name: "Caldera Bastion", biome: "Molten Caldera", x: 15450, y: 450 },
+  { id: 10, name: "Citadel Sentry", biome: "Astral Void Citadel", x: 17350, y: 450 }
+];
+
+const WEAPONS_DATA = [
+  { id: "solar", name: "Solar Blaster", icon: "☀️", dmg: 20, speed: 7.0, color: "#ffd60a", glow: "#ff9e00", ptype: "fireball", biome: "Emerald Haven", x: 1140, y: 280 },
+  { id: "spore", name: "Spore Cannon", icon: "🍄", dmg: 22, speed: 7.2, color: "#ff4d6d", glow: "#c9184a", ptype: "spore", biome: "Mycelium Marsh", x: 2850, y: 250 },
+  { id: "crystal", name: "Crystal Darts", icon: "💎", dmg: 25, speed: 7.5, color: "#00f0ff", glow: "#0077b6", ptype: "crystal", biome: "Crystal Caverns", x: 4750, y: 310 },
+  { id: "sunfire", name: "Sunfire Wand", icon: "🔥", dmg: 26, speed: 7.8, color: "#ff7b00", glow: "#ff0054", ptype: "wand", biome: "Sunset Bridges", x: 6650, y: 270 },
+  { id: "boomerang", name: "Thorn Boomerang", icon: "🪃", dmg: 28, speed: 8.0, color: "#52b788", glow: "#1b4332", ptype: "boomerang", biome: "Verdant Canopy", x: 8550, y: 230 },
+  { id: "plasma", name: "Plasma Laser", icon: "⚡", dmg: 30, speed: 8.5, color: "#c77dff", glow: "#7209b7", ptype: "laser", biome: "Neon Cyber-Sector", x: 10450, y: 260 },
+  { id: "chakram", name: "Sand Chakram", icon: "💿", dmg: 32, speed: 8.5, color: "#e7a93b", glow: "#bc6c25", ptype: "chakram", biome: "Dune Ruins", x: 12350, y: 260 },
+  { id: "thunder", name: "Thunderbolt Rod", icon: "⚡", dmg: 35, speed: 9.0, color: "#48cae4", glow: "#0096c7", ptype: "thunder", biome: "Sky Kingdom", x: 14250, y: 280 },
+  { id: "bomb", name: "Magma Bomb", icon: "💣", dmg: 38, speed: 8.0, color: "#ff5400", glow: "#9d0208", ptype: "bomb", biome: "Molten Caldera", x: 16150, y: 300 },
+  { id: "nova", name: "Cosmic Nova", icon: "🌌", dmg: 42, speed: 9.5, color: "#f72585", glow: "#7209b7", ptype: "nova", biome: "Astral Void Citadel", x: 18050, y: 260 }
+];
+
+const BOSSES_DATA = [
+  { id: 1, name: "Thornshell Cyclops", title: "GROVE BEHEMOTH", type: "thornshell", biome: "Emerald Haven", x: 1650, y: 416, origY: 416, w: 64, h: 64, minX: 1450, maxX: 1880, vx: 0.75, hp: 80, color: "#2d6a4f" },
+  { id: 2, name: "Spore Shroomling", title: "MYCELIUM LORD", type: "shroomling", biome: "Mycelium Marsh", x: 3450, y: 426, origY: 426, w: 64, h: 64, minX: 3250, maxX: 3750, vx: -0.85, hp: 100, color: "#a01a56" },
+  { id: 3, name: "Crypt Skel-Knight", title: "SPECTRAL OVERLORD", type: "skeleton", biome: "Crystal Caverns", x: 5350, y: 390, origY: 390, w: 64, h: 64, minX: 5100, maxX: 5650, vx: 0.95, hp: 120, color: "#e2e8f0" },
+  { id: 4, name: "Gloom Grimoire", title: "FORBIDDEN ARCHIVE", type: "grimoire", biome: "Sunset Bridges", x: 7250, y: 390, origY: 390, w: 64, h: 64, minX: 7000, maxX: 7550, vx: -1.05, hp: 140, color: "#6b21a8" },
+  { id: 5, name: "Ocular Stalker", title: "WATCHER IN THE DARK", type: "ocular", biome: "Verdant Canopy", x: 9150, y: 436, origY: 436, w: 64, h: 64, minX: 8900, maxX: 9450, vx: 1.15, hp: 160, color: "#ef233c" },
+  { id: 6, name: "Venom Arachnotron", title: "HEXA-EYED PREDATOR", type: "arachnotron", biome: "Neon Cyber-Sector", x: 11050, y: 426, origY: 426, w: 64, h: 64, minX: 10800, maxX: 11350, vx: -1.25, hp: 180, color: "#4a044e" },
+  { id: 7, name: "Dune Fang Lurker", title: "ABYSSAL REPTILIAN", type: "lurker", biome: "Dune Ruins", x: 12950, y: 426, origY: 426, w: 64, h: 64, minX: 12700, maxX: 13250, vx: 1.30, hp: 200, color: "#1d3557" },
+  { id: 8, name: "Vespoid Sky-Wasp", title: "HORNET QUEEN", type: "wasp", biome: "Sky Kingdom", x: 14850, y: 370, origY: 370, w: 64, h: 64, minX: 14600, maxX: 15150, vx: 1.35, hp: 220, color: "#fca311" },
+  { id: 9, name: "Magma Spiketooth Snail", title: "CALDERA JUGGERNAUT", type: "snail", biome: "Molten Caldera", x: 16750, y: 436, origY: 436, w: 64, h: 64, minX: 16450, maxX: 17050, vx: -1.35, hp: 240, color: "#d00000" },
+  { id: 10, name: "Astral Octo-Beast", title: "ELDRITCH VOID TITAN", type: "octo", biome: "Astral Void Citadel", x: 18650, y: 436, origY: 436, w: 68, h: 68, minX: 18350, maxX: 19100, vx: 1.45, hp: 260, color: "#7209b7" }
+];
+
+// Continuous Open World Platforms across 10 Interconnected Biomes
+const OPEN_WORLD_PLATFORMS = [
+  // Biome 1: Emerald Haven (-100 to 1950)
+  { x: -100, y: 500, w: 850, biomeId: 1 },
+  { x: 800, y: 460, w: 450, biomeId: 1 },
+  { x: 1300, y: 430, w: 400, biomeId: 1 },
+  { x: 1750, y: 480, w: 500, biomeId: 1 },
+
+  // Biome 2: Mycelium Marsh (1950 to 3850)
+  { x: 2150, y: 480, w: 500, biomeId: 2 },
+  { x: 2700, y: 420, w: 420, biomeId: 2 },
+  { x: 3170, y: 370, w: 420, biomeId: 2 },
+  { x: 3640, y: 460, w: 500, biomeId: 2 },
+
+  // Biome 3: Crystal Caverns (3850 to 5750)
+  { x: 4050, y: 490, w: 520, biomeId: 3 },
+  { x: 4620, y: 440, w: 460, biomeId: 3 },
+  { x: 5130, y: 470, w: 450, biomeId: 3 },
+  { x: 5630, y: 480, w: 520, biomeId: 3 },
+
+  // Biome 4: Sunset Bridges (5750 to 7650)
+  { x: 6050, y: 480, w: 400, biomeId: 4 },
+  { x: 6500, y: 450, w: 300, type: "moving", moveSpeed: 0.015, moveRange: 50, biomeId: 4 },
+  { x: 6850, y: 420, w: 380, biomeId: 4 },
+  { x: 7280, y: 450, w: 280, type: "moving", moveSpeed: 0.018, moveRange: 55, biomeId: 4 },
+  { x: 7610, y: 490, w: 500, biomeId: 4 },
+
+  // Biome 5: Verdant Canopy (7650 to 9550)
+  { x: 8000, y: 490, w: 450, biomeId: 5 },
+  { x: 8500, y: 410, w: 420, biomeId: 5 },
+  { x: 8970, y: 350, w: 440, biomeId: 5 },
+  { x: 9460, y: 440, w: 400, biomeId: 5 },
+  { x: 9910, y: 490, w: 450, biomeId: 5 },
+
+  // Biome 6: Neon Cyber-Sector (9550 to 11450)
+  { x: 10300, y: 480, w: 420, biomeId: 6 },
+  { x: 10770, y: 440, w: 340, type: "moving", moveSpeed: 0.020, moveRange: 60, biomeId: 6 },
+  { x: 11160, y: 400, w: 420, biomeId: 6 },
+  { x: 11630, y: 440, w: 360, type: "moving", moveSpeed: 0.022, moveRange: 65, biomeId: 6 },
+  { x: 12040, y: 490, w: 480, biomeId: 6 },
+
+  // Biome 7: Dune Ruins (11450 to 13350)
+  { x: 12450, y: 490, w: 450, biomeId: 7 },
+  { x: 12950, y: 430, w: 380, biomeId: 7 },
+  { x: 13380, y: 470, w: 460, biomeId: 7 },
+  { x: 13890, y: 400, w: 400, biomeId: 7 },
+  { x: 14340, y: 480, w: 500, biomeId: 7 },
+
+  // Biome 8: Sky Kingdom (13350 to 15250)
+  { x: 14780, y: 480, w: 420, biomeId: 8 },
+  { x: 15250, y: 410, w: 340, type: "moving", moveSpeed: 0.022, moveRange: 60, biomeId: 8 },
+  { x: 15640, y: 370, w: 400, biomeId: 8 },
+  { x: 16090, y: 430, w: 360, type: "moving", moveSpeed: 0.024, moveRange: 65, biomeId: 8 },
+  { x: 16500, y: 480, w: 480, biomeId: 8 },
+
+  // Biome 9: Molten Caldera (15250 to 17150)
+  { x: 16920, y: 490, w: 420, biomeId: 9 },
+  { x: 17390, y: 430, w: 360, biomeId: 9 },
+  { x: 17800, y: 460, w: 380, biomeId: 9 },
+  { x: 18230, y: 400, w: 380, type: "moving", moveSpeed: 0.025, moveRange: 65, biomeId: 9 },
+  { x: 18660, y: 490, w: 520, biomeId: 9 },
+
+  // Biome 10: Astral Void Citadel (17150 to 19800+)
+  { x: 19120, y: 490, w: 460, biomeId: 10 },
+  { x: 19630, y: 430, w: 380, type: "moving", moveSpeed: 0.025, moveRange: 70, biomeId: 10 },
+  { x: 20060, y: 390, w: 450, biomeId: 10 },
+  { x: 20560, y: 440, w: 420, biomeId: 10 },
+  { x: 21030, y: 490, w: 1800, biomeId: 10 } // Grand Star Gate Summit!
+];
+
+// Blocks scattered across the continuum
+const OPEN_WORLD_BLOCKS = [
+  // Biome 1
+  { x: 300, y: 350, type: "question", content: "coin" },
+  { x: 340, y: 350, type: "brick" },
+  { x: 380, y: 350, type: "question", content: "star" },
+  { x: 420, y: 350, type: "brick" },
+  { x: 460, y: 350, type: "question", content: "coin" },
+  { x: 1100, y: 320, type: "question", content: "shield" },
+  { x: 1140, y: 320, type: "brick" },
+  { x: 1180, y: 320, type: "question", content: "boost" },
+  { x: 680, y: 440, type: "pipe", w: 52, h: 60 },
+
+  // Biome 2
+  { x: 2350, y: 360, type: "brick" },
+  { x: 2390, y: 360, type: "question", content: "magnet" },
+  { x: 2430, y: 360, type: "brick" },
+  { x: 2900, y: 310, type: "question", content: "coin" },
+  { x: 2940, y: 310, type: "question", content: "shield" },
+
+  // Biome 3
+  { x: 4250, y: 360, type: "question", content: "coin" },
+  { x: 4290, y: 360, type: "brick" },
+  { x: 4330, y: 360, type: "question", content: "shield" },
+  { x: 4850, y: 330, type: "pipe", w: 52, h: 70 },
+  { x: 5350, y: 350, type: "question", content: "boost" },
+
+  // Biome 4
+  { x: 6200, y: 360, type: "question", content: "coin" },
+  { x: 6240, y: 360, type: "brick" },
+  { x: 6280, y: 360, type: "question", content: "boost" },
+  { x: 7050, y: 290, type: "question", content: "shield" },
+
+  // Biome 5
+  { x: 8150, y: 360, type: "question", content: "shield" },
+  { x: 8650, y: 290, type: "question", content: "coin" },
+  { x: 8690, y: 290, type: "brick" },
+  { x: 8730, y: 290, type: "question", content: "boost" },
+
+  // Biome 6
+  { x: 10450, y: 360, type: "question", content: "magnet" },
+  { x: 11300, y: 290, type: "question", content: "shield" },
+  { x: 11340, y: 290, type: "brick" },
+  { x: 11380, y: 290, type: "question", content: "boost" },
+
+  // Biome 7
+  { x: 12600, y: 360, type: "question", content: "shield" },
+  { x: 13100, y: 310, type: "brick" },
+  { x: 13140, y: 310, type: "question", content: "coin" },
+  { x: 13180, y: 310, type: "brick" },
+
+  // Biome 8
+  { x: 14950, y: 360, type: "question", content: "boost" },
+  { x: 15780, y: 290, type: "question", content: "shield" },
+
+  // Biome 9
+  { x: 17100, y: 360, type: "question", content: "shield" },
+  { x: 17550, y: 310, type: "brick" },
+  { x: 17590, y: 310, type: "question", content: "boost" },
+
+  // Biome 10
+  { x: 19300, y: 360, type: "question", content: "shield" },
+  { x: 20250, y: 300, type: "question", content: "boost" },
+  { x: 20700, y: 320, type: "question", content: "star" }
+];
+
+// Normal enemies patrolling across biomes
+const OPEN_WORLD_ENEMIES = [
+  // Biome 1
+  { x: 480, y: 468, type: "slime", minX: 200, maxX: 700, vx: -0.7 },
+  { x: 1050, y: 428, type: "slime", minX: 850, maxX: 1200, vx: 0.75 },
+  // Biome 2
+  { x: 2400, y: 448, type: "slime", minX: 2200, maxX: 2600, vx: -0.8 },
+  { x: 2900, y: 388, type: "drone", minX: 2750, maxX: 3100, vx: 0.9, origY: 340 },
+  // Biome 3
+  { x: 4300, y: 458, type: "spiky", minX: 4100, maxX: 4500, vx: 0.85 },
+  { x: 4850, y: 408, type: "slime", minX: 4700, maxX: 5050, vx: -0.9 },
+  // Biome 4
+  { x: 6250, y: 448, type: "slime", minX: 6100, maxX: 6400, vx: -0.95 },
+  { x: 7050, y: 388, type: "drone", minX: 6900, maxX: 7200, vx: 1.05, origY: 340 },
+  // Biome 5
+  { x: 8200, y: 458, type: "slime", minX: 8050, maxX: 8400, vx: -1.0 },
+  { x: 8750, y: 378, type: "drone", minX: 8550, maxX: 8900, vx: 1.15, origY: 320 },
+  // Biome 6
+  { x: 10500, y: 448, type: "spiky", minX: 10350, maxX: 10700, vx: 1.05 },
+  { x: 11350, y: 368, type: "slime", minX: 11200, maxX: 11550, vx: -1.15 },
+  // Biome 7
+  { x: 12650, y: 458, type: "spiky", minX: 12500, maxX: 12850, vx: -1.1 },
+  { x: 13550, y: 438, type: "drone", minX: 13420, maxX: 13800, vx: 1.25, origY: 380 },
+  // Biome 8
+  { x: 14950, y: 448, type: "slime", minX: 14800, maxX: 15150, vx: 1.2 },
+  { x: 15800, y: 338, type: "drone", minX: 15680, maxX: 16000, vx: 1.35, origY: 320 },
+  // Biome 9
+  { x: 17100, y: 458, type: "spiky", minX: 16950, maxX: 17300, vx: -1.25 },
+  { x: 18000, y: 428, type: "drone", minX: 17850, maxX: 18150, vx: 1.45, origY: 380 },
+  // Biome 10
+  { x: 19350, y: 458, type: "spiky", minX: 19150, maxX: 19550, vx: 1.35 },
+  { x: 20250, y: 358, type: "drone", minX: 20100, maxX: 20480, vx: 1.55, origY: 320 }
+];
+
+// Star coins spread across the biomes
+const OPEN_WORLD_COINS = [
+  { x: 220, y: 450 }, { x: 250, y: 450 }, { x: 280, y: 450 },
+  { x: 620, y: 390 }, { x: 650, y: 370 }, { x: 680, y: 390 },
+  { x: 2280, y: 410 }, { x: 2320, y: 410 }, { x: 2850, y: 340 }, { x: 2890, y: 340 },
+  { x: 4180, y: 420 }, { x: 4220, y: 420 }, { x: 4750, y: 370 }, { x: 4790, y: 370 },
+  { x: 6150, y: 410 }, { x: 6190, y: 410 }, { x: 6950, y: 350 }, { x: 6990, y: 350 },
+  { x: 8100, y: 420 }, { x: 8140, y: 420 }, { x: 8600, y: 340 }, { x: 8640, y: 340 },
+  { x: 10400, y: 410 }, { x: 10440, y: 410 }, { x: 11250, y: 330 }, { x: 11290, y: 330 },
+  { x: 12550, y: 420 }, { x: 12590, y: 420 }, { x: 13480, y: 390 }, { x: 13520, y: 390 },
+  { x: 14880, y: 410 }, { x: 14920, y: 410 }, { x: 15720, y: 300 }, { x: 15760, y: 300 },
+  { x: 17050, y: 420 }, { x: 17090, y: 420 }, { x: 17900, y: 380 }, { x: 17940, y: 380 },
+  { x: 19250, y: 420 }, { x: 19290, y: 420 }, { x: 20150, y: 320 }, { x: 20190, y: 320 }
 ];
 
 class Game {
@@ -501,15 +243,36 @@ class Game {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
 
-    // States: 'MENU', 'PLAYING', 'PAUSED', 'GAMEOVER', 'LEVELCLEAR', 'LEVELSELECT'
+    // States: 'MENU', 'PLAYING', 'PAUSED', 'GAMEOVER', 'VICTORY'
     this.state = 'MENU';
+    this.isWorldMapOpen = false;
 
-    // Levels & Progression
-    this.currentLevelIndex = 0; // 0 to 9
-    this.maxUnlockedLevel = 1;  // 1 to 10
+    // Open World Arsenal Inventory & Progression
+    this.inventory = [];
+    this.currentWeaponIndex = -1;
+    this.activeWaypoints = new Set([1]); // Waypoint 1 (Haven Sanctum) active by default
+    this.claimedSigils = new Set();     // 10 Astral Sigils to collect from bosses
+    this.currentBiome = BIOME_ZONES[0];
+    this.lastCheckpointId = 1;
+
+    // Load saved progression from LocalStorage
     try {
-      const savedUnlocked = localStorage.getItem('sr_unlocked_level');
-      if (savedUnlocked) this.maxUnlockedLevel = Math.max(1, Math.min(10, parseInt(savedUnlocked, 10)));
+      const savedWp = localStorage.getItem('sr_active_waypoints');
+      if (savedWp) {
+        const arr = JSON.parse(savedWp);
+        if (Array.isArray(arr)) arr.forEach(id => this.activeWaypoints.add(id));
+      }
+      const savedArsenal = localStorage.getItem('sr_arsenal');
+      if (savedArsenal) {
+        this.inventory = JSON.parse(savedArsenal);
+      }
+      const savedSigils = localStorage.getItem('sr_claimed_sigils');
+      if (savedSigils) {
+        const arr = JSON.parse(savedSigils);
+        if (Array.isArray(arr)) arr.forEach(id => this.claimedSigils.add(id));
+      }
+      const savedCp = localStorage.getItem('sr_checkpoint_id');
+      if (savedCp) this.lastCheckpointId = parseInt(savedCp, 10) || 1;
     } catch (e) {}
 
     // Best Score
@@ -524,25 +287,26 @@ class Game {
     this.character = characterManager;
     this.particles = particleSystem;
 
-    // Viewport & Camera
+    // Viewport & Dynamic Camera
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.camera = { x: 0, y: 0, zoom: 1.35 };
 
-    // Player State (Super Mario platformer controls)
+    // Player State (Responsive Platformer Controls)
     this.player = {
-      x: 80,
-      y: 350,
+      x: 140,
+      y: 380,
       w: 48,
       h: 64,
       vx: 0,
       vy: 0,
-      accel: 0.46,
-      friction: 0.83,
-      maxSpeed: 4.6,
-      gravity: 0.58,
-      jumpForce: -12.5,
-      doubleJumpForce: -11.0,
+      accel: 0.28,
+      friction: 0.85,
+      baseMaxSpeed: 3.4,
+      maxSpeed: 3.4,
+      gravity: 0.46,
+      jumpForce: -11.2,
+      doubleJumpForce: -9.6,
       isGrounded: false,
       jumpsLeft: 2,
       maxJumps: 2,
@@ -565,20 +329,18 @@ class Game {
       jump: false
     };
 
-    // Weapons & Boss Combat
+    // Weapons & Projectiles
     this.projectiles = [];
-    this.boss = null;
-    this.weaponChest = null;
     this.shootCooldown = 0;
     this.lastGateWarning = 0;
 
-    // Game stats
+    // Stats
     this.lives = 3;
     this.maxLives = 3;
     this.score = 0;
     this.coinsCollected = 0;
 
-    // Level Entities
+    // Open World Entities
     this.platforms = [];
     this.blocks = [];
     this.enemies = [];
@@ -586,8 +348,11 @@ class Game {
     this.powerups = [];
     this.bouncingCoins = [];
     this.scorePopups = [];
-    this.hazards = [];
-    this.flag = { x: 0, y: 0, reached: false };
+    this.waypoints = [];
+    this.weaponChests = [];
+    this.bosses = [];
+    this.activeBoss = null;
+    this.starGate = { x: 21550, y: 160, w: 60, h: 330, unlocked: false };
 
     // Background Elements
     this.stars = [];
@@ -595,35 +360,48 @@ class Game {
     this.fireflies = [];
     this.initBackgroundElements();
 
-    // DOM Elements
+    // DOM Elements Bindings
     this.hudElement = document.getElementById('hud');
     this.scoreValEl = document.getElementById('hud-score');
     this.coinValEl = document.getElementById('hud-coins');
-    this.levelValEl = document.getElementById('hud-level');
     this.bestScoreEl = document.getElementById('home-best-score');
     this.homeOverlay = document.getElementById('home-overlay');
     this.pauseOverlay = document.getElementById('pause-overlay');
     this.gameoverOverlay = document.getElementById('gameover-overlay');
     this.customizerOverlay = document.getElementById('customizer-overlay');
-    this.levelsOverlay = document.getElementById('levels-overlay');
+    this.worldmapOverlay = document.getElementById('worldmap-overlay');
     this.levelClearOverlay = document.getElementById('levelclear-overlay');
     this.powerupMeters = document.getElementById('powerup-meters');
+
+    // Open World HUD Elements
+    this.hudBiomeNameEl = document.getElementById('hud-biome-name');
+    this.hudSigilsValEl = document.getElementById('hud-sigils-val');
+    this.hudWeaponsValEl = document.getElementById('hud-weapons-val');
+    this.hudWaypointsValEl = document.getElementById('hud-waypoints-val');
 
     // Weapon & Boss HUD Elements
     this.weaponCapsuleEl = document.getElementById('hud-weapon-capsule');
     this.weaponIconEl = document.getElementById('hud-weapon-icon');
     this.weaponNameEl = document.getElementById('hud-weapon-name');
-    this.weaponDmgEl = document.getElementById('hud-weapon-dmg');
     this.bossHudBarEl = document.getElementById('boss-hud-bar');
     this.bossHudNameEl = document.getElementById('boss-hud-name');
     this.bossBarFillEl = document.getElementById('boss-bar-fill');
-    this.bossHpValEl = document.getElementById('boss-hp-val');
-    this.bossLvlTagEl = document.getElementById('boss-lvl-tag');
+    this.bossHpNumEl = document.getElementById('boss-hud-hp-num');
+
+    // Mini-map & World Map Canvas
+    this.minimapCanvas = document.getElementById('hud-minimap-canvas');
+    this.minimapCtx = this.minimapCanvas ? this.minimapCanvas.getContext('2d') : null;
+    this.worldmapCanvas = document.getElementById('worldmap-canvas');
+    this.worldmapCtx = this.worldmapCanvas ? this.worldmapCanvas.getContext('2d') : null;
+    this.worldmapBeaconsList = document.getElementById('worldmap-beacons-list');
+    this.wmSigilsCountEl = document.getElementById('wm-sigils-count');
+    this.wmWeaponsCountEl = document.getElementById('wm-weapons-count');
+    this.wmBeaconsCountEl = document.getElementById('wm-beacons-count');
 
     // Setup Event Listeners & Resize
     this.setupEventListeners();
     this.resizeCanvas();
-    this.loadLevel(this.currentLevelIndex);
+    this.loadOpenWorld(true);
 
     // Start Engine Loop
     this.lastTime = performance.now();
@@ -631,6 +409,13 @@ class Game {
 
     // Update UI initial values
     this.updateBestScoreDisplay();
+  }
+
+  resizeCanvas() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
   }
 
   // --- Background Scenery Init ---
@@ -672,19 +457,40 @@ class Game {
     }
   }
 
-  // --- Level Loading & Setup ---
+  // --- Open World Loading & Setup ---
 
-  loadLevel(levelIndex) {
-    this.currentLevelIndex = Math.max(0, Math.min(LEVEL_DATA.length - 1, levelIndex));
-    const lvl = LEVEL_DATA[this.currentLevelIndex];
+  loadOpenWorld(startAtCheckpoint = true) {
+    // 1. Platforms (10 biomes continuous continuum)
+    this.platforms = OPEN_WORLD_PLATFORMS.map(p => ({
+      ...p,
+      h: 400,
+      origY: p.y,
+      movePhase: Math.random() * Math.PI * 2
+    }));
 
-    // Reset Player position & state
-    this.player.x = 80;
-    this.player.y = 380;
+    // 2. Determine spawn location (cleanly grounded on platform)
+    let spawnX = 160;
+    let spawnY = 436;
+
+    if (startAtCheckpoint && this.lastCheckpointId) {
+      const cp = WAYPOINTS_DATA.find(w => w.id === this.lastCheckpointId);
+      if (cp) {
+        spawnX = cp.x + 10;
+        const cpPlat = this.platforms.find(p => spawnX >= p.x && spawnX <= p.x + p.w);
+        spawnY = cpPlat ? cpPlat.y - this.player.h : cp.y - 24;
+      }
+    } else {
+      const startPlat = this.platforms.find(p => spawnX >= p.x && spawnX <= p.x + p.w);
+      if (startPlat) spawnY = startPlat.y - this.player.h;
+    }
+
+    // Reset Player position & movement kinematics
+    this.player.x = spawnX;
+    this.player.y = spawnY;
     this.player.vx = 0;
     this.player.vy = 0;
     this.player.facing = 1;
-    this.player.isGrounded = false;
+    this.player.isGrounded = true;
     this.player.jumpsLeft = 2;
     this.player.coyoteTimer = 0;
     this.player.jumpBufferTimer = 0;
@@ -694,26 +500,35 @@ class Game {
     this.player.starTimer = 0;
     this.player.hasShield = false;
     this.player.frame = 0;
-    this.player.currentWeapon = null;
 
-    this.camera.x = 0;
-    this.camera.y = 0;
+    // Equip first unlocked weapon if available
+    if (this.inventory.length > 0) {
+      if (this.currentWeaponIndex < 0 || this.currentWeaponIndex >= this.inventory.length) {
+        this.currentWeaponIndex = 0;
+      }
+      this.player.currentWeapon = this.inventory[this.currentWeaponIndex];
+    } else {
+      this.player.currentWeapon = null;
+      this.currentWeaponIndex = -1;
+    }
+
+    // Camera initial position comfortably framing character
+    const targetVirtualH = 540;
+    this.camera.zoom = Math.max(0.95, Math.min(1.35, this.height / targetVirtualH));
+    const viewW = this.width / this.camera.zoom;
+    const viewH = this.height / this.camera.zoom;
+    this.camera.x = Math.max(-40, this.player.x - viewW * 0.35);
+    this.camera.y = Math.max(-40, (this.player.y + 20) - viewH * 0.58);
+
+    // Entity reset
     this.particles.reset();
     this.bouncingCoins = [];
     this.scorePopups = [];
     this.projectiles = [];
     this.shootCooldown = 0;
 
-    // Platforms
-    this.platforms = lvl.platforms.map(p => ({
-      ...p,
-      h: 400,
-      origY: p.y,
-      movePhase: 0
-    }));
-
     // Interactive Blocks (? blocks, bricks, pipes)
-    this.blocks = (lvl.blocks || []).map(b => ({
+    this.blocks = OPEN_WORLD_BLOCKS.map(b => ({
       ...b,
       w: b.w || 38,
       h: b.h || 38,
@@ -721,35 +536,37 @@ class Game {
       empty: false
     }));
 
-    // Hidden Weapon Chest
-    if (lvl.hiddenWeapon) {
-      this.weaponChest = {
-        ...lvl.hiddenWeapon,
-        w: 38,
-        h: 34,
-        opened: false,
-        sparklePhase: 0
-      };
-    } else {
-      this.weaponChest = null;
-    }
+    // 10 Waypoint Beacons
+    this.waypoints = WAYPOINTS_DATA.map(wp => ({
+      ...wp,
+      w: 44,
+      h: 72,
+      active: this.activeWaypoints.has(wp.id),
+      pulsePhase: Math.random() * Math.PI * 2
+    }));
 
-    // Boss Monster
-    if (lvl.boss) {
-      this.boss = {
-        ...lvl.boss,
-        curHp: lvl.boss.hp,
-        maxHp: lvl.boss.hp,
-        alive: true,
-        hitFlash: 0,
-        phase: 0
-      };
-    } else {
-      this.boss = null;
-    }
+    // 10 Hidden Weapon Shrines
+    this.weaponChests = WEAPONS_DATA.map(w => ({
+      ...w,
+      w: 42,
+      h: 36,
+      opened: this.inventory.some(i => i.id === w.id),
+      sparklePhase: Math.random() * Math.PI * 2
+    }));
+
+    // 10 Boss Monsters
+    this.bosses = BOSSES_DATA.map(b => ({
+      ...b,
+      curHp: b.hp,
+      maxHp: b.hp,
+      alive: !this.claimedSigils.has(b.id),
+      hitFlash: 0,
+      phase: Math.random() * Math.PI * 2
+    }));
+    this.activeBoss = null;
 
     // Enemies (Slimes, Flying Drones, Spikies)
-    this.enemies = (lvl.enemies || []).map(e => ({
+    this.enemies = OPEN_WORLD_ENEMIES.map(e => ({
       ...e,
       w: 36,
       h: 32,
@@ -757,46 +574,47 @@ class Game {
       alive: true,
       squashed: false,
       squashTimer: 0,
-      phase: 0
+      phase: Math.random() * Math.PI * 2
     }));
 
-    // Coins
-    this.coins = (lvl.coins || []).map(c => ({
+    // Star Coins
+    this.coins = OPEN_WORLD_COINS.map(c => ({
       ...c,
       r: 10,
       collected: false
     }));
 
-    // Powerups spawned in world or from blocks
     this.powerups = [];
 
-    // Victory Flagpole
-    this.flag = {
-      x: lvl.flagX,
-      y: 180,
-      w: 12,
-      h: 320,
-      reached: false,
-      flagSlideY: 0
+    // Grand Cosmic Star Gate at the Astral Summit
+    this.starGate = {
+      x: 21550,
+      y: 150,
+      w: 64,
+      h: 340,
+      reached: false
     };
 
-    // Update UI labels & HUD
-    if (this.levelValEl) this.levelValEl.textContent = `${this.currentLevelIndex + 1}`;
+    // Detect current biome & refresh all HUD displays
+    this.updateCurrentBiome();
     this.updateHUD();
     this.updateHeartsUI();
-    this.updateWeaponHUD();
+    this.updateArsenalHUD();
+    this.updateQuestTrackerHUD();
     this.updateBossHUD();
   }
 
-  startLevel(index) {
-    this.loadLevel(index);
+  startOpenWorld() {
+    this.lives = this.maxLives;
+    this.loadOpenWorld(true);
     this.state = 'PLAYING';
     this.homeOverlay.classList.add('hidden');
     this.pauseOverlay.classList.add('hidden');
     this.gameoverOverlay.classList.add('hidden');
     this.customizerOverlay.classList.add('hidden');
-    this.levelsOverlay.classList.add('hidden');
+    this.worldmapOverlay.classList.add('hidden');
     this.levelClearOverlay.classList.add('hidden');
+    this.updateHeartsUI();
     this.sound.startMusic();
   }
 
@@ -820,9 +638,26 @@ class Game {
       } else if (e.code === 'KeyF' || e.code === 'KeyJ' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
         e.preventDefault();
         this.shootWeapon();
+      } else if (e.code === 'KeyM') {
+        e.preventDefault();
+        this.toggleWorldMap();
+      } else if (e.code === 'KeyQ') {
+        e.preventDefault();
+        this.cycleWeapon(-1);
+      } else if (e.code === 'KeyE') {
+        e.preventDefault();
+        this.cycleWeapon(1);
+      } else if (e.code.startsWith('Digit')) {
+        const digit = parseInt(e.code.replace('Digit', ''), 10);
+        const slot = digit === 0 ? 9 : digit - 1;
+        this.selectWeaponSlot(slot);
       } else if (e.code === 'Escape' || e.code === 'KeyP') {
         e.preventDefault();
-        this.togglePause();
+        if (this.isWorldMapOpen) {
+          this.closeWorldMap();
+        } else {
+          this.togglePause();
+        }
       }
     });
 
@@ -833,28 +668,31 @@ class Game {
         this.keys.right = false;
       } else if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
         this.keys.jump = false;
-        // Mario variable jump: releasing early cuts vertical velocity
         if (this.player.vy < -3.5) {
           this.player.vy *= 0.55;
         }
       }
     });
 
-    // Mobile Virtual D-Pad & Attack buttons
+    // Mobile Virtual D-Pad & Attack/Arsenal buttons
     const leftBtn = document.getElementById('mobile-left-btn');
     const rightBtn = document.getElementById('mobile-right-btn');
     const jumpBtn = document.getElementById('mobile-jump-btn');
     const attackBtn = document.getElementById('mobile-attack-btn');
+    const prevWpnBtn = document.getElementById('mobile-prev-wpn');
+    const nextWpnBtn = document.getElementById('mobile-next-wpn');
 
     if (leftBtn) {
       leftBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.keys.left = true; });
       leftBtn.addEventListener('pointerup', (e) => { e.preventDefault(); this.keys.left = false; });
       leftBtn.addEventListener('pointerleave', (e) => { this.keys.left = false; });
+      leftBtn.addEventListener('pointercancel', (e) => { this.keys.left = false; });
     }
     if (rightBtn) {
       rightBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.keys.right = true; });
       rightBtn.addEventListener('pointerup', (e) => { e.preventDefault(); this.keys.right = false; });
       rightBtn.addEventListener('pointerleave', (e) => { this.keys.right = false; });
+      rightBtn.addEventListener('pointercancel', (e) => { this.keys.right = false; });
     }
     if (jumpBtn) {
       jumpBtn.addEventListener('pointerdown', (e) => {
@@ -867,6 +705,9 @@ class Game {
         this.keys.jump = false;
         if (this.player.vy < -3.5) this.player.vy *= 0.55;
       });
+      jumpBtn.addEventListener('pointercancel', (e) => {
+        this.keys.jump = false;
+      });
     }
     if (attackBtn) {
       attackBtn.addEventListener('pointerdown', (e) => {
@@ -874,26 +715,63 @@ class Game {
         this.shootWeapon();
       });
     }
+    if (prevWpnBtn) {
+      prevWpnBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.cycleWeapon(-1);
+      });
+    }
+    if (nextWpnBtn) {
+      nextWpnBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.cycleWeapon(1);
+      });
+    }
 
-    // UI Buttons
+    // HUD Arsenal Cycling Buttons
+    document.getElementById('hud-prev-wpn-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.cycleWeapon(-1);
+    });
+    document.getElementById('hud-next-wpn-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.cycleWeapon(1);
+    });
+    document.getElementById('hud-weapon-capsule')?.addEventListener('click', () => {
+      this.cycleWeapon(1);
+    });
+
+    // World Map Controls
+    document.getElementById('hud-map-btn')?.addEventListener('click', () => {
+      this.sound.playClick();
+      this.openWorldMap();
+    });
+    document.getElementById('hud-minimap-container')?.addEventListener('click', () => {
+      this.sound.playClick();
+      this.openWorldMap();
+    });
+    document.getElementById('worldmap-close-btn')?.addEventListener('click', () => {
+      this.sound.playClick();
+      this.closeWorldMap();
+    });
+    document.getElementById('worldmap-resume-btn')?.addEventListener('click', () => {
+      this.sound.playClick();
+      this.closeWorldMap();
+    });
+    document.getElementById('btn-unlock-all-beacons')?.addEventListener('click', () => {
+      this.sound.playClick();
+      this.unlockAllWaypoints();
+    });
+
+    // Menu and Customizer UI Buttons
     document.getElementById('home-play-btn')?.addEventListener('click', () => {
       this.sound.playClick();
-      this.startLevel(this.currentLevelIndex);
+      this.startOpenWorld();
     });
 
     document.getElementById('home-levels-btn')?.addEventListener('click', () => {
       this.sound.playClick();
-      this.openLevelSelect();
-    });
-
-    document.getElementById('hud-levels-btn')?.addEventListener('click', () => {
-      this.sound.playClick();
-      this.openLevelSelect();
-    });
-
-    document.getElementById('levels-back-btn')?.addEventListener('click', () => {
-      this.sound.playClick();
-      this.closeLevelSelect();
+      this.openWorldMap();
     });
 
     document.getElementById('home-custom-btn')?.addEventListener('click', () => {
@@ -912,20 +790,17 @@ class Game {
       this.syncCustomizerUI();
     });
 
-    // Level Clear Overlay Buttons
+    // Level Clear / Grand Finale Modal Buttons
     document.getElementById('lc-next-btn')?.addEventListener('click', () => {
       this.sound.playClick();
-      if (this.currentLevelIndex + 1 < LEVEL_DATA.length) {
-        this.startLevel(this.currentLevelIndex + 1);
-      } else {
-        this.startLevel(0); // Finished game, loop back
-      }
+      this.levelClearOverlay.classList.add('hidden');
+      this.teleportToWaypoint(1);
     });
 
     document.getElementById('lc-levels-btn')?.addEventListener('click', () => {
       this.sound.playClick();
       this.levelClearOverlay.classList.add('hidden');
-      this.openLevelSelect();
+      this.openWorldMap();
     });
 
     document.getElementById('lc-menu-btn')?.addEventListener('click', () => {
@@ -937,7 +812,10 @@ class Game {
     document.getElementById('btn-retry')?.addEventListener('click', () => {
       this.sound.playClick();
       this.lives = this.maxLives;
-      this.startLevel(this.currentLevelIndex);
+      this.loadOpenWorld(true);
+      this.state = 'PLAYING';
+      this.gameoverOverlay.classList.add('hidden');
+      this.sound.startMusic();
     });
 
     document.getElementById('btn-gameover-custom')?.addEventListener('click', () => {
@@ -982,7 +860,7 @@ class Game {
 
     if (this.state === 'MENU' || this.state === 'GAMEOVER') {
       this.lives = this.maxLives;
-      this.startLevel(this.currentLevelIndex);
+      this.startOpenWorld();
       return;
     }
 
@@ -1057,184 +935,282 @@ class Game {
     this.particles.createProjectileHit(spawnX + 9, spawnY + 9, wpn.color);
   }
 
-  killBoss() {
-    if (!this.boss || !this.boss.alive) return;
-    this.boss.alive = false;
-    this.boss.curHp = 0;
-    this.sound.playBossDefeat();
-    this.particles.createBossExplosion(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2);
-    this.score += 1000;
-    this.addScorePopup(this.boss.x + this.boss.w / 2, this.boss.y - 25, '🏆 BOSS DEFEATED! +1000', '#ffd60a');
-    this.updateBossHUD();
+  killBoss(targetBoss = null) {
+    const b = targetBoss || this.activeBoss || this.bosses.find(x => x.alive);
+    if (!b || !b.alive) return;
+    this.defeatBoss(b);
   }
 
-  updateWeaponHUD() {
+  // --- Weapon Arsenal & Cycling ---
+
+  unlockWeapon(wpnChest) {
+    wpnChest.opened = true;
+    const exists = this.inventory.some(w => w.id === wpnChest.id);
+    if (!exists) {
+      this.inventory.push(wpnChest);
+      this.currentWeaponIndex = this.inventory.length - 1;
+      this.player.currentWeapon = wpnChest;
+      try {
+        localStorage.setItem('sr_arsenal', JSON.stringify(this.inventory));
+      } catch (e) {}
+
+      this.sound.playWeaponFound();
+      this.particles.createDoubleJumpRing(wpnChest.x + 20, wpnChest.y + 18);
+      this.particles.createCoinBurst(wpnChest.x + 20, wpnChest.y + 18);
+      this.addScorePopup(wpnChest.x + 20, wpnChest.y - 20, `⚔️ ${wpnChest.name.toUpperCase()} ACQUIRED!`, '#ffd60a');
+      this.score += 500;
+    } else {
+      this.player.currentWeapon = wpnChest;
+      this.sound.playClick();
+      this.addScorePopup(wpnChest.x + 20, wpnChest.y - 20, `⚔️ EQUIPPED ${wpnChest.name.toUpperCase()}`, '#00f0ff');
+    }
+    this.updateArsenalHUD();
+    this.updateQuestTrackerHUD();
+  }
+
+  cycleWeapon(dir) {
+    if (this.inventory.length === 0) {
+      this.addScorePopup(this.player.x + 24, this.player.y - 15, '⚠️ FIND WEAPON CHESTS IN BIOMES!', '#ffbe0b');
+      return;
+    }
+    this.currentWeaponIndex = (this.currentWeaponIndex + dir + this.inventory.length) % this.inventory.length;
+    this.player.currentWeapon = this.inventory[this.currentWeaponIndex];
+    this.sound.playClick();
+    this.particles.createDoubleJumpRing(this.player.x + 24, this.player.y + 32);
+    this.addScorePopup(this.player.x + 24, this.player.y - 18, `${this.player.currentWeapon.icon} ${this.player.currentWeapon.name.toUpperCase()}`, this.player.currentWeapon.color);
+    this.updateArsenalHUD();
+  }
+
+  selectWeaponSlot(slotIndex) {
+    if (slotIndex >= 0 && slotIndex < this.inventory.length) {
+      this.currentWeaponIndex = slotIndex;
+      this.player.currentWeapon = this.inventory[this.currentWeaponIndex];
+      this.sound.playClick();
+      this.particles.createDoubleJumpRing(this.player.x + 24, this.player.y + 32);
+      this.addScorePopup(this.player.x + 24, this.player.y - 18, `${this.player.currentWeapon.icon} ${this.player.currentWeapon.name.toUpperCase()}`, this.player.currentWeapon.color);
+      this.updateArsenalHUD();
+    }
+  }
+
+  updateArsenalHUD() {
     if (!this.weaponCapsuleEl) return;
     const wpn = this.player.currentWeapon;
     if (wpn) {
       this.weaponCapsuleEl.classList.remove('locked');
       this.weaponCapsuleEl.classList.add('armed');
       if (this.weaponIconEl) this.weaponIconEl.textContent = wpn.icon;
-      if (this.weaponNameEl) this.weaponNameEl.textContent = wpn.name;
-      if (this.weaponDmgEl) this.weaponDmgEl.textContent = `${wpn.dmg} DMG`;
+      if (this.weaponNameEl) this.weaponNameEl.textContent = `${wpn.name.toUpperCase()} (${wpn.dmg} DMG)`;
     } else {
       this.weaponCapsuleEl.classList.add('locked');
       this.weaponCapsuleEl.classList.remove('armed');
-      if (this.weaponIconEl) this.weaponIconEl.textContent = '🔒';
-      if (this.weaponNameEl) this.weaponNameEl.textContent = 'NONE';
-      if (this.weaponDmgEl) this.weaponDmgEl.textContent = 'FIND CHEST';
+      if (this.weaponIconEl) this.weaponIconEl.textContent = '⚔️';
+      if (this.weaponNameEl) this.weaponNameEl.textContent = 'UNARMED';
     }
   }
 
-  updateBossHUD() {
+  // --- Waypoints & Fast Travel ---
+
+  activateWaypoint(wp) {
+    if (wp.active) return;
+    wp.active = true;
+    this.activeWaypoints.add(wp.id);
+    this.lastCheckpointId = wp.id;
+
+    // Full heal & checkpoint restore
+    this.lives = this.maxLives;
+    this.updateHeartsUI();
+
+    try {
+      localStorage.setItem('sr_active_waypoints', JSON.stringify([...this.activeWaypoints]));
+      localStorage.setItem('sr_checkpoint_id', wp.id);
+    } catch (e) {}
+
+    this.sound.playPowerupReveal();
+    this.particles.createDoubleJumpRing(wp.x + 22, wp.y + 36);
+    this.particles.createCoinBurst(wp.x + 22, wp.y + 36);
+    this.addScorePopup(wp.x + 22, wp.y - 25, `🌀 ${wp.name.toUpperCase()} ACTIVATED! (FULL HEAL)`, '#00f59b');
+    this.score += 300;
+
+    this.updateQuestTrackerHUD();
+  }
+
+  teleportToWaypoint(wpId) {
+    const wp = this.waypoints.find(w => w.id === wpId);
+    if (!wp) return;
+
+    const underPlat = this.platforms.find(p => wp.x >= p.x && wp.x <= p.x + p.w) || this.platforms[0];
+    this.player.x = wp.x + 10;
+    this.player.y = underPlat ? underPlat.y - this.player.h : wp.y - 24;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.isGrounded = true;
+    this.lastCheckpointId = wp.id;
+
+    // Immediate camera snap
+    const targetVirtualH = 540;
+    this.camera.zoom = Math.max(0.95, Math.min(1.35, this.height / targetVirtualH));
+    const viewW = this.width / this.camera.zoom;
+    const viewH = this.height / this.camera.zoom;
+    this.camera.x = Math.max(-40, this.player.x - viewW * 0.35);
+    this.camera.y = Math.max(-40, (this.player.y + 20) - viewH * 0.58);
+
+    this.sound.playPowerup();
+    this.particles.createDoubleJumpRing(this.player.x + 24, this.player.y + 32);
+    this.addScorePopup(this.player.x + 24, this.player.y - 25, `⚡ FAST TRAVEL TO ${wp.name.toUpperCase()}!`, '#00f0ff');
+
+    this.updateCurrentBiome();
+    this.closeWorldMap();
+  }
+
+  unlockAllWaypoints() {
+    this.waypoints.forEach(wp => {
+      wp.active = true;
+      this.activeWaypoints.add(wp.id);
+    });
+    try {
+      localStorage.setItem('sr_active_waypoints', JSON.stringify([...this.activeWaypoints]));
+    } catch (e) {}
+    this.sound.playCoin();
+    this.renderWorldMapModal();
+    this.updateQuestTrackerHUD();
+  }
+
+  // --- World Map Modal & Radar ---
+
+  openWorldMap() {
+    this.isWorldMapOpen = true;
+    if (this.worldmapOverlay) this.worldmapOverlay.classList.remove('hidden');
+    this.renderWorldMapModal();
+  }
+
+  closeWorldMap() {
+    this.isWorldMapOpen = false;
+    if (this.worldmapOverlay) this.worldmapOverlay.classList.add('hidden');
+  }
+
+  toggleWorldMap() {
+    if (this.isWorldMapOpen) this.closeWorldMap();
+    else this.openWorldMap();
+  }
+
+  renderWorldMapModal() {
+    if (this.wmSigilsCountEl) this.wmSigilsCountEl.textContent = `${this.claimedSigils.size} / 10`;
+    if (this.wmWeaponsCountEl) this.wmWeaponsCountEl.textContent = `${this.inventory.length} / 10`;
+    if (this.wmBeaconsCountEl) this.wmBeaconsCountEl.textContent = `${this.activeWaypoints.size} / 10`;
+
+    if (this.worldmapBeaconsList) {
+      let html = '';
+      this.waypoints.forEach(wp => {
+        const isActive = this.activeWaypoints.has(wp.id);
+        const isCurrent = this.lastCheckpointId === wp.id;
+        const stateClass = isCurrent ? 'current' : (isActive ? 'active' : 'locked');
+        const statusText = isCurrent ? '📍 CURRENT' : (isActive ? '⚡ TELEPORT' : '🔒 UNDISCOVERED');
+
+        html += `
+          <div class="beacon-card ${stateClass}" data-beacon="${wp.id}">
+            <div class="beacon-header">
+              <span class="beacon-id">WAYPOINT #${wp.id}</span>
+              <span class="beacon-status">${isActive ? '🟢' : '⚪'}</span>
+            </div>
+            <div class="beacon-name">${wp.name}</div>
+            <div class="beacon-biome">${wp.biome}</div>
+            <div class="beacon-travel-tag">${statusText}</div>
+          </div>
+        `;
+      });
+      this.worldmapBeaconsList.innerHTML = html;
+
+      this.worldmapBeaconsList.querySelectorAll('.beacon-card.active, .beacon-card.current').forEach(card => {
+        card.addEventListener('click', () => {
+          const wpId = parseInt(card.dataset.beacon, 10);
+          this.sound.playClick();
+          this.teleportToWaypoint(wpId);
+        });
+      });
+    }
+
+    this.drawWorldMapModal();
+  }
+
+  // --- Biome & Quest Tracker Updates ---
+
+  updateCurrentBiome() {
+    const px = this.player.x;
+    const found = BIOME_ZONES.find(b => px >= b.startX && px < b.endX) || BIOME_ZONES[0];
+    if (this.currentBiome !== found) {
+      this.currentBiome = found;
+      this.addScorePopup(this.player.x + 24, this.player.y - 30, `ENTERING ${found.name.toUpperCase()}`, found.ambientColor);
+    }
+    if (this.hudBiomeNameEl) this.hudBiomeNameEl.textContent = this.currentBiome.name.toUpperCase();
+  }
+
+  updateQuestTrackerHUD() {
+    if (this.hudSigilsValEl) this.hudSigilsValEl.textContent = `${this.claimedSigils.size}/10`;
+    if (this.hudWeaponsValEl) this.hudWeaponsValEl.textContent = `${this.inventory.length}/10`;
+    if (this.hudWaypointsValEl) this.hudWaypointsValEl.textContent = `${this.activeWaypoints.size}/10`;
+  }
+
+  updateBossHUD(targetBoss = null) {
     if (!this.bossHudBarEl) return;
-    if (!this.boss) {
+    const b = targetBoss || this.activeBoss;
+    if (!b || !b.alive) {
       this.bossHudBarEl.classList.add('hidden');
       return;
     }
 
-    const distToBoss = Math.abs(this.player.x - this.boss.x);
-    if (distToBoss < 950 || this.boss.curHp < this.boss.maxHp) {
-      this.bossHudBarEl.classList.remove('hidden');
-    }
-
-    if (this.bossHudNameEl) this.bossHudNameEl.textContent = `👑 ${this.boss.name.toUpperCase()}`;
-    if (this.bossLvlTagEl) this.bossLvlTagEl.textContent = `LVL ${this.currentLevelIndex + 1} BOSS`;
-
-    const pct = Math.max(0, Math.min(100, (this.boss.curHp / this.boss.maxHp) * 100));
+    this.bossHudBarEl.classList.remove('hidden');
+    if (this.bossHudNameEl) this.bossHudNameEl.textContent = `👑 ${b.name.toUpperCase()} (${b.title})`;
+    const pct = Math.max(0, Math.min(100, (b.curHp / b.maxHp) * 100));
     if (this.bossBarFillEl) this.bossBarFillEl.style.width = `${pct}%`;
-    if (this.bossHpValEl) {
-      if (this.boss.alive) {
-        this.bossHpValEl.textContent = `${this.boss.curHp} / ${this.boss.maxHp} HP`;
-      } else {
-        this.bossHpValEl.textContent = `💀 DEFEATED!`;
-      }
+    if (this.bossHpNumEl) this.bossHpNumEl.textContent = `${b.curHp} / ${b.maxHp} HP`;
+  }
+
+  defeatBoss(b) {
+    if (!b || !b.alive) return;
+    b.alive = false;
+    b.curHp = 0;
+    this.claimedSigils.add(b.id);
+    try {
+      localStorage.setItem('sr_claimed_sigils', JSON.stringify([...this.claimedSigils]));
+    } catch (e) {}
+
+    this.sound.playBossDefeat();
+    this.particles.createBossExplosion(b.x + b.w / 2, b.y + b.h / 2);
+    this.score += 1500;
+    this.addScorePopup(b.x + b.w / 2, b.y - 25, `👑 ASTRAL SIGIL CLAIMED! (${this.claimedSigils.size}/10)`, '#ffd60a');
+    this.updateBossHUD(null);
+    this.updateQuestTrackerHUD();
+
+    if (this.claimedSigils.size === 10) {
+      setTimeout(() => {
+        this.addScorePopup(this.player.x + 24, this.player.y - 35, '🌟 ALL 10 SIGILS CLAIMED! THE STAR GATE IS OPEN!', '#00f0ff');
+      }, 1200);
     }
   }
 
-  resizeCanvas() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
-  }
-
-  // --- State Transitions ---
-
-  showMenu() {
-    this.state = 'MENU';
-    this.homeOverlay.classList.remove('hidden');
-    this.pauseOverlay.classList.add('hidden');
-    this.gameoverOverlay.classList.add('hidden');
-    this.customizerOverlay.classList.add('hidden');
-    this.levelsOverlay.classList.add('hidden');
-    this.levelClearOverlay.classList.add('hidden');
-    this.updateBestScoreDisplay();
-  }
-
-  togglePause() {
-    if (this.state === 'PLAYING') {
-      this.state = 'PAUSED';
-      this.pauseOverlay.classList.remove('hidden');
-    } else if (this.state === 'PAUSED') {
-      this.state = 'PLAYING';
-      this.pauseOverlay.classList.add('hidden');
-      this.lastTime = performance.now();
-    }
-  }
-
-  openLevelSelect() {
-    this.state = 'LEVELSELECT';
-    this.renderLevelGrid();
-    this.levelsOverlay.classList.remove('hidden');
-  }
-
-  closeLevelSelect() {
-    this.levelsOverlay.classList.add('hidden');
-    if (this.state === 'LEVELSELECT') {
-      this.showMenu();
-    }
-  }
-
-  renderLevelGrid() {
-    const grid = document.getElementById('levels-grid');
-    if (!grid) return;
-
-    const BIOME_EMOJIS = ['🌿', '🍄', '💎', '🌅', '🌲', '⚡', '🏛️', '☁️', '🌋', '🏰'];
-
-    // Handle Unlock All Levels button
-    const unlockBtn = document.getElementById('btn-unlock-all');
-    if (unlockBtn) {
-      if (this.maxUnlockedLevel >= 10) {
-        unlockBtn.querySelector('span').textContent = '✓ ALL 10 LEVELS UNLOCKED';
-      } else {
-        unlockBtn.querySelector('span').textContent = '⭐ UNLOCK ALL 10 LEVELS';
-      }
-      unlockBtn.onclick = () => {
-        this.sound.playCoin();
-        this.maxUnlockedLevel = 10;
-        try {
-          localStorage.setItem('sr_unlocked_level', '10');
-        } catch (e) {}
-        this.renderLevelGrid();
-      };
-    }
-
-    let html = '';
-    LEVEL_DATA.forEach((lvl, idx) => {
-      const isUnlocked = lvl.id <= this.maxUnlockedLevel;
-      const isActive = idx === this.currentLevelIndex;
-      const statusClass = isUnlocked ? 'unlocked' : 'locked';
-      const activeClass = isActive ? 'active-level' : '';
-      const biomeIcon = BIOME_EMOJIS[idx] || '⭐';
-
-      html += `
-        <div class="level-card ${statusClass} ${activeClass}" data-level="${idx}">
-          <div class="level-biome-badge">${biomeIcon}</div>
-          <div class="level-code-tag">${lvl.subtitle}</div>
-          <div class="level-name">${lvl.title}</div>
-          <div class="level-stars">${lvl.difficulty}</div>
-          <div class="level-number">${isUnlocked ? '#' + lvl.id : '🔒'}</div>
-        </div>
-      `;
-    });
-    grid.innerHTML = html;
-
-    grid.querySelectorAll('.level-card.unlocked').forEach(card => {
-      card.addEventListener('click', () => {
-        const lvlIdx = parseInt(card.dataset.level, 10);
-        this.sound.playClick();
-        this.lives = this.maxLives;
-        this.startLevel(lvlIdx);
-      });
-    });
-  }
-
-  triggerLevelClear() {
-    this.state = 'LEVELCLEAR';
+  triggerGrandFinale() {
+    this.state = 'VICTORY';
     this.sound.playLevelClear();
+    this.sound.stopMusic();
     this.particles.createConfetti(this.width, this.height);
 
-    const lvl = LEVEL_DATA[this.currentLevelIndex];
-    const nextLvlNum = lvl.id + 1;
-
-    // Unlock next level in persistence
-    if (nextLvlNum <= 10 && nextLvlNum > this.maxUnlockedLevel) {
-      this.maxUnlockedLevel = nextLvlNum;
+    const isNewRecord = this.score > this.bestScore;
+    if (isNewRecord) {
+      this.bestScore = this.score;
       try {
-        localStorage.setItem('sr_unlocked_level', this.maxUnlockedLevel);
+        localStorage.setItem('sr_best', this.bestScore);
       } catch (e) {}
     }
 
-    // Populate Level Clear Modal
-    document.getElementById('lc-level-name').textContent = `${lvl.subtitle} — ${lvl.title}`;
+    const titleEl = document.querySelector('#levelclear-overlay .clear-title');
+    if (titleEl) titleEl.textContent = '★ COSMIC TRIUMPH! ★';
+    const subEl = document.getElementById('lc-level-name');
+    if (subEl) subEl.textContent = 'ALL 10 ASTRAL SIGILS RESTORED — REALM LIBERATED!';
     document.getElementById('lc-coins').textContent = this.coinsCollected;
-    document.getElementById('lc-score').textContent = this.score;
+    document.getElementById('lc-score').textContent = this.score + 5000;
 
     const nextBtn = document.getElementById('lc-next-btn');
-    if (nextBtn) {
-      nextBtn.querySelector('span').textContent = this.currentLevelIndex === 9 ? '🏆 VICTORY LAP (REPLAY)' : '▶ NEXT LEVEL';
-    }
+    if (nextBtn) nextBtn.querySelector('span').textContent = '↺ EXPLORE REALM AGAIN';
 
     this.levelClearOverlay.classList.remove('hidden');
   }
@@ -1263,6 +1239,27 @@ class Game {
     this.gameoverOverlay.classList.remove('hidden');
   }
 
+  showMenu() {
+    this.state = 'MENU';
+    this.sound.stopMusic();
+    this.homeOverlay.classList.remove('hidden');
+    this.pauseOverlay.classList.add('hidden');
+    this.gameoverOverlay.classList.add('hidden');
+    this.customizerOverlay.classList.add('hidden');
+    this.worldmapOverlay.classList.add('hidden');
+    this.levelClearOverlay.classList.add('hidden');
+  }
+
+  togglePause() {
+    if (this.state === 'PLAYING') {
+      this.state = 'PAUSED';
+      this.pauseOverlay.classList.remove('hidden');
+    } else if (this.state === 'PAUSED') {
+      this.state = 'PLAYING';
+      this.pauseOverlay.classList.add('hidden');
+    }
+  }
+
   // --- Damage & Lives Handling ---
 
   handlePlayerDamage(hitX = 0) {
@@ -1282,13 +1279,13 @@ class Game {
     this.updateHeartsUI();
 
     // Damage knockback
-    this.player.vy = -6.5;
-    this.player.vx = hitX > this.player.x ? -3.5 : 3.5;
+    this.player.vy = -5.0;
+    this.player.vx = hitX > this.player.x ? -2.6 : 2.6;
 
     if (this.lives <= 0) {
       this.triggerGameOver();
     } else {
-      this.player.invulnerableTimer = 90;
+      this.player.invulnerableTimer = 110;
     }
   }
 
@@ -1300,15 +1297,27 @@ class Game {
     if (this.lives <= 0) {
       this.triggerGameOver();
     } else {
-      // Emergency rescue bounce back to closest platform
-      this.player.invulnerableTimer = 110;
-      this.player.vy = -14.0;
-      const targetPlat = this.platforms.find(p => p.x + p.w > this.player.x - 50) || this.platforms[0];
-      if (targetPlat) {
-        this.player.x = targetPlat.x + 40;
-        this.player.y = targetPlat.y - 120;
-      }
-      this.particles.createDoubleJumpRing(this.player.x + this.player.w / 2, this.player.y);
+      // Safe emergency rescue directly to active waypoint beacon or platform
+      this.player.invulnerableTimer = 120;
+      const cp = this.waypoints.find(w => w.id === this.lastCheckpointId) || this.waypoints[0];
+      const respawnX = cp ? cp.x + 10 : 160;
+      const underPlat = this.platforms.find(p => respawnX >= p.x && respawnX <= p.x + p.w) || this.platforms[0];
+      this.player.x = respawnX;
+      this.player.y = underPlat ? underPlat.y - this.player.h : 436;
+      this.player.vx = 0;
+      this.player.vy = 0;
+      this.player.isGrounded = true;
+
+      // Immediate camera snap
+      const targetVirtualH = 540;
+      this.camera.zoom = Math.max(0.95, Math.min(1.35, this.height / targetVirtualH));
+      const viewW = this.width / this.camera.zoom;
+      const viewH = this.height / this.camera.zoom;
+      this.camera.x = Math.max(-40, this.player.x - viewW * 0.35);
+      this.camera.y = Math.max(-40, (this.player.y + 20) - viewH * 0.58);
+
+      this.particles.createDoubleJumpRing(this.player.x + this.player.w / 2, this.player.y + this.player.h);
+      this.addScorePopup(this.player.x + 20, this.player.y - 20, '⚠️ RESCUED TO BEACON', '#ff0054');
     }
   }
 
@@ -1484,8 +1493,8 @@ class Game {
       this.player.coyoteTimer = 6;
     }
 
-    // 6. Void Fall Check
-    if (this.player.y > this.height + 60) {
+    // 6. Void Fall Check (World depth pit)
+    if (this.player.y > 680) {
       this.handleVoidFall();
     }
 
@@ -1633,21 +1642,27 @@ class Game {
       }
     }
 
-    // 12. Hidden Weapon Chest Pickup
-    if (this.weaponChest && !this.weaponChest.opened) {
-      this.weaponChest.sparklePhase += 0.05;
-      if (this.checkCollision(this.player, this.weaponChest)) {
-        this.weaponChest.opened = true;
-        this.player.currentWeapon = this.weaponChest.weapon;
-        this.sound.playWeaponFound();
-        this.particles.createDoubleJumpRing(this.weaponChest.x + 19, this.weaponChest.y + 17);
-        this.particles.createCoinBurst(this.weaponChest.x + 19, this.weaponChest.y + 17);
-        this.addScorePopup(this.weaponChest.x + 19, this.weaponChest.y - 18, `⚔️ ${this.weaponChest.weapon.name.toUpperCase()}!`, '#ffd60a');
-        this.updateWeaponHUD();
+    // 12. Hidden Weapon Shrines Pickup (10 Weapons across biomes)
+    for (let wc of this.weaponChests) {
+      if (!wc.opened) {
+        wc.sparklePhase += 0.05;
+        if (this.checkCollision(this.player, wc)) {
+          this.unlockWeapon(wc);
+        }
       }
     }
 
-    // 13. Projectiles Physics & Combat Collision
+    // 13. Waypoint Beacons Discovery (10 Fast-Travel Anchors)
+    for (let wp of this.waypoints) {
+      wp.pulsePhase += 0.04;
+      const distToWp = Math.abs((this.player.x + this.player.w / 2) - (wp.x + wp.w / 2));
+      const distY = Math.abs((this.player.y + this.player.h / 2) - (wp.y + wp.h / 2));
+      if (distToWp < 48 && distY < 64 && !wp.active) {
+        this.activateWaypoint(wp);
+      }
+    }
+
+    // 14. Projectiles Physics & Combat Collision
     if (this.shootCooldown > 0) this.shootCooldown--;
 
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
@@ -1673,7 +1688,7 @@ class Game {
         }
       }
 
-      // Enemy hit
+      // Normal Enemy hit
       if (!hit) {
         for (let enemy of this.enemies) {
           if (!enemy.alive) continue;
@@ -1691,19 +1706,24 @@ class Game {
         }
       }
 
-      // Boss Monster hit!
-      if (!hit && this.boss && this.boss.alive) {
-        if (this.checkCollision(p, this.boss)) {
-          hit = true;
-          this.boss.curHp = Math.max(0, this.boss.curHp - p.dmg);
-          this.boss.hitFlash = 12;
-          this.sound.playBossHit();
-          this.particles.createProjectileHit(p.x + p.w / 2, p.y + p.h / 2, p.color);
-          this.addScorePopup(this.boss.x + this.boss.w / 2, this.boss.y - 10, `-${p.dmg}`, '#ff007f');
-          this.updateBossHUD();
+      // Boss Monsters Hit Check across active realm
+      if (!hit) {
+        for (let boss of this.bosses) {
+          if (!boss.alive) continue;
+          if (Math.abs(boss.x - this.player.x) > 1200) continue;
+          if (this.checkCollision(p, boss)) {
+            hit = true;
+            boss.curHp = Math.max(0, boss.curHp - p.dmg);
+            boss.hitFlash = 12;
+            this.sound.playBossHit();
+            this.particles.createProjectileHit(p.x + p.w / 2, p.y + p.h / 2, p.color);
+            this.addScorePopup(boss.x + boss.w / 2, boss.y - 10, `-${p.dmg}`, '#ff007f');
+            this.updateBossHUD(boss);
 
-          if (this.boss.curHp <= 0) {
-            this.killBoss();
+            if (boss.curHp <= 0) {
+              this.defeatBoss(boss);
+            }
+            break;
           }
         }
       }
@@ -1713,109 +1733,119 @@ class Game {
       }
     }
 
-    // 14. Boss Monster AI, Stomp Damage & Player Combat
-    if (this.boss && this.boss.alive) {
-      this.boss.phase += 0.04;
-      if (this.boss.hitFlash > 0) this.boss.hitFlash--;
+    // 15. Active Boss AI, Combat & Domain Synchronization
+    let nearestBoss = null;
+    let minDist = 1200;
 
-      // Movement & Patrol Kinematics
-      const isFlying = (this.boss.type === 'skeleton' || this.boss.type === 'grimoire' || this.boss.type === 'wasp');
-      if (isFlying) {
-        this.boss.x += this.boss.vx;
-        this.boss.y = this.boss.origY + Math.sin(this.boss.phase * 1.5) * 25;
-      } else {
-        this.boss.x += this.boss.vx;
-        const hop = Math.abs(Math.sin(this.boss.phase * 2.5)) * 6;
-        this.boss.y = this.boss.origY - hop;
+    for (let boss of this.bosses) {
+      if (!boss.alive) continue;
+      const d = Math.abs(this.player.x - boss.x);
+      if (d < minDist) {
+        minDist = d;
+        nearestBoss = boss;
       }
 
-      // Patrol boundary turnaround
-      if (this.boss.x <= this.boss.minX) {
-        this.boss.x = this.boss.minX;
-        this.boss.vx = Math.abs(this.boss.vx);
-      } else if (this.boss.x + this.boss.w >= this.boss.maxX) {
-        this.boss.x = this.boss.maxX - this.boss.w;
-        this.boss.vx = -Math.abs(this.boss.vx);
+      // Only run physics & collisions for bosses in active camera proximity (< 1300px)
+      if (d > 1300) continue;
+
+      boss.phase += 0.04;
+      if (boss.hitFlash > 0) boss.hitFlash--;
+
+      // Movement & Patrol Kinematics
+      const isFlying = (boss.type === 'skeleton' || boss.type === 'grimoire' || boss.type === 'wasp');
+      if (isFlying) {
+        boss.x += boss.vx;
+        boss.y = boss.origY + Math.sin(boss.phase * 1.5) * 25;
+      } else {
+        boss.x += boss.vx;
+        const hop = Math.abs(Math.sin(boss.phase * 2.5)) * 6;
+        boss.y = boss.origY - hop;
+      }
+
+      // Patrol boundaries
+      if (boss.x <= boss.minX) {
+        boss.x = boss.minX;
+        boss.vx = Math.abs(boss.vx);
+      } else if (boss.x + boss.w >= boss.maxX) {
+        boss.x = boss.maxX - boss.w;
+        boss.vx = -Math.abs(boss.vx);
       }
 
       // Check collision between Player and Boss Monster
-      if (this.checkCollision(this.player, this.boss)) {
-        // A. Super Star Invincibility: Heavy shredding damage
+      if (this.checkCollision(this.player, boss)) {
         if (this.player.starTimer > 0) {
-          this.boss.curHp = Math.max(0, this.boss.curHp - 4);
-          this.boss.hitFlash = 8;
+          boss.curHp = Math.max(0, boss.curHp - 4);
+          boss.hitFlash = 8;
           this.sound.playBossHit();
-          this.particles.createHitSparks(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2);
-          this.updateBossHUD();
-          if (this.boss.curHp <= 0) this.killBoss();
+          this.particles.createHitSparks(boss.x + boss.w / 2, boss.y + boss.h / 2);
+          this.updateBossHUD(boss);
+          if (boss.curHp <= 0) this.defeatBoss(boss);
         } else {
-          // B. Stomp Condition: Player falling from above onto the boss
-          const stomping = (this.player.vy > 0) && (prevFeet <= this.boss.y + 24);
+          // Stomp Condition: Falling onto the boss from above
+          const stomping = (this.player.vy > 0) && (prevFeet <= boss.y + 24);
           if (stomping) {
-            // Stomp damage (25 DMG) & high Mario rebound bounce!
-            this.boss.curHp = Math.max(0, this.boss.curHp - 25);
-            this.boss.hitFlash = 14;
+            boss.curHp = Math.max(0, boss.curHp - 25);
+            boss.hitFlash = 14;
             this.player.vy = -12.5; // High rebound
             this.sound.playBossHit();
-            this.particles.createStompPoof(this.player.x + this.player.w / 2, this.boss.y);
-            this.addScorePopup(this.boss.x + this.boss.w / 2, this.boss.y - 12, '-25 STOMP!', '#ffbe0b');
-            this.updateBossHUD();
-
-            if (this.boss.curHp <= 0) {
-              this.killBoss();
-            }
+            this.particles.createStompPoof(this.player.x + this.player.w / 2, boss.y);
+            this.addScorePopup(boss.x + boss.w / 2, boss.y - 12, '-25 STOMP!', '#ffbe0b');
+            this.updateBossHUD(boss);
+            if (boss.curHp <= 0) this.defeatBoss(boss);
           } else {
-            // Player takes damage from the monster
-            this.handlePlayerDamage(this.boss.x + this.boss.w / 2);
+            this.handlePlayerDamage(boss.x + boss.w / 2);
           }
         }
       }
-
-      // Synchronize boss HUD visibility & health
-      this.updateBossHUD();
     }
 
-    // 15. Energy Gate Lock before Flagpole (Boss must be reduced to 0 HP)
-    const gateX = this.flag.x - 70;
-    if (this.boss && this.boss.alive) {
-      if (this.player.x + this.player.w >= gateX) {
-        this.player.x = gateX - this.player.w;
-        this.player.vx = -4.0;
+    this.activeBoss = nearestBoss;
+    this.updateBossHUD(nearestBoss);
+
+    // 16. Cosmic Star Gate at the Astral Summit (x: 21,550)
+    const gate = this.starGate;
+    if (this.player.x + this.player.w >= gate.x && this.player.x <= gate.x + gate.w) {
+      if (this.claimedSigils.size >= 10) {
+        if (!gate.reached) {
+          gate.reached = true;
+          this.triggerGrandFinale();
+        }
+      } else {
+        // Sealed by celestial barrier until all 10 Sigils are assembled
+        this.player.x = gate.x - this.player.w - 12;
+        this.player.vx = -4.5;
         this.sound.playHit();
-        this.particles.createShieldBreak(gateX, this.player.y + 25);
-        if (!this.lastGateWarning || Date.now() - this.lastGateWarning > 1200) {
+        this.particles.createShieldBreak(gate.x, this.player.y + 25);
+        if (!this.lastGateWarning || Date.now() - this.lastGateWarning > 1400) {
           this.lastGateWarning = Date.now();
-          this.addScorePopup(gateX - 25, this.player.y - 15, '⚠️ DEFEAT THE BOSS FIRST!', '#ff007f');
+          this.addScorePopup(gate.x - 30, this.player.y - 15, `🔒 REQUIRES 10 ASTRAL SIGILS (${this.claimedSigils.size}/10)!`, '#ff007f');
         }
       }
-    }
-
-    // 16. Flagpole Goal Detection (Unlocked only when boss is slain)
-    if (!this.flag.reached && (!this.boss || !this.boss.alive) && this.player.x + this.player.w >= this.flag.x) {
-      this.flag.reached = true;
-      this.player.vx = 0;
-      this.triggerLevelClear();
     }
 
     // Particles update
     this.particles.update();
 
-    // 13. Dynamic Camera Zoom & Viewport Tracking (Crisp platformer framing)
-    const targetVirtualH = 490;
-    this.camera.zoom = Math.max(1.22, Math.min(1.65, this.height / targetVirtualH));
+    // 17. Dynamic Camera Zoom & Viewport Tracking across the 22,000px Continuum
+    const targetVirtualH = 540;
+    this.camera.zoom = Math.max(0.95, Math.min(1.35, this.height / targetVirtualH));
     const viewW = this.width / this.camera.zoom;
     const viewH = this.height / this.camera.zoom;
 
-    // Smooth horizontal follow
-    const targetCamX = this.player.x - viewW * 0.32;
-    this.camera.x += (targetCamX - this.camera.x) * 0.12;
-    if (this.camera.x < -60) this.camera.x = -60;
+    // Smooth horizontal follow without artificial walls
+    const targetCamX = this.player.x - viewW * 0.35;
+    this.camera.x += (targetCamX - this.camera.x) * 0.14;
+    if (this.camera.x < -40) this.camera.x = -40;
+    if (this.camera.x > 21800) this.camera.x = 21800;
 
-    // Smooth vertical follow: keeps ground comfortably in lower third
-    const targetCamY = Math.max(0, (this.player.y + 30) - viewH * 0.74);
-    this.camera.y += (targetCamY - this.camera.y) * 0.08;
+    // Smooth vertical follow - comfortable clearance above bottom controls
+    const targetCamY = Math.max(-40, (this.player.y + 20) - viewH * 0.58);
+    this.camera.y += (targetCamY - this.camera.y) * 0.10;
 
+    // Biome tracking & HUD refresh
+    this.updateCurrentBiome();
     this.updateHUD();
+    this.drawMiniMap();
   }
 
   handleBlockContent(block) {
@@ -1860,36 +1890,39 @@ class Game {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
 
-    const lvl = LEVEL_DATA[this.currentLevelIndex] || LEVEL_DATA[0];
+    const currentZone = this.currentBiome || BIOME_ZONES[0];
 
     // 1. Parallax Painterly Background (Screen space)
-    this.drawParallaxBackground(ctx, lvl);
+    this.drawParallaxBackground(ctx, currentZone);
 
     // 2. Main Game World (Scaled and Camera Tracked)
     ctx.save();
     ctx.scale(this.camera.zoom, this.camera.zoom);
     ctx.translate(-this.camera.x, -this.camera.y);
 
-    // Platforms (Grassy cliff ledges with wildflowers and earth strata)
-    this.drawPlatforms(ctx, lvl);
+    // Continuous Open World Platforms across 10 biomes
+    this.drawPlatforms(ctx);
 
-    // Interactive Blocks (? Blocks, Bricks, Warp Pipes)
+    // Interactive Blocks (? Blocks, Bricks)
     this.drawBlocks(ctx);
 
     // Bouncing Coins vaulting from ? blocks
     this.drawBouncingCoins(ctx);
 
-    // Hidden Weapon Chest
-    this.drawWeaponChest(ctx);
+    // 10 Fast-Travel Waypoint Beacons
+    this.drawWaypoints(ctx);
 
-    // Stompable Animated Cartoon Enemies (Squishy slimes, flapping paratroopas, spikies)
+    // 10 Arsenal Weapon Chests
+    this.drawWeaponChests(ctx);
+
+    // Regular Stompable Cartoon Enemies
     this.drawEnemies(ctx);
 
-    // Signature Reference Boss Monster (with animated features and HP bar)
-    this.drawBoss(ctx);
+    // 10 Reference Monster Bosses in their respective domains
+    this.drawBosses(ctx);
 
-    // Energy Gate Barrier (locks player out of flagpole until boss is slain)
-    this.drawEnergyGate(ctx);
+    // The Great Celestial Star Gate (Citadel terminus x: 21,550)
+    this.drawStarGate(ctx);
 
     // Collectible Coins & Power-ups
     this.drawCoins(ctx);
@@ -1898,9 +1931,6 @@ class Game {
     // Fired Combat Projectiles
     this.drawProjectiles(ctx);
 
-    // Finish Flagpole
-    this.drawFlagpole(ctx);
-
     // Particle Effects
     this.particles.draw(ctx);
 
@@ -1908,20 +1938,80 @@ class Game {
     this.drawScorePopups(ctx);
 
     // Player Character (facing direction, run stride, jump kinematics, rainbow star aura)
-    if (this.state === 'PLAYING' || this.state === 'PAUSED' || this.state === 'LEVELCLEAR') {
-      this.character.draw(ctx, this.player.x, this.player.y, this.player.w, this.player.h, {
-        frame: this.player.frame,
-        isGrounded: this.player.isGrounded,
-        vy: this.player.vy,
-        vx: this.player.vx,
-        facing: this.player.facing,
-        invulnerable: this.player.invulnerableTimer > 0,
-        hasShield: this.player.hasShield,
-        isInvincible: this.player.starTimer > 0
-      });
+    if (this.state === 'PLAYING' || this.state === 'PAUSED' || this.state === 'LEVELCLEAR' || this.state === 'VICTORY') {
+      // Guaranteed bright fallback marker so player is always visible
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 0, 100, 0.55)';
+      ctx.shadowColor = '#ff0064';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 28, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.restore();
+
+      // Draw the full character sprite on top
+      try {
+        this.character.draw(ctx, this.player.x, this.player.y, this.player.w, this.player.h, {
+          frame: this.player.frame,
+          isGrounded: this.player.isGrounded,
+          vy: this.player.vy,
+          vx: this.player.vx,
+          facing: this.player.facing,
+          invulnerable: this.player.invulnerableTimer > 0,
+          hasShield: this.player.hasShield,
+          isInvincible: this.player.starTimer > 0
+        });
+      } catch (e) {
+        // If character draw fails, draw a simple rectangle as fallback
+        ctx.fillStyle = '#ff007f';
+        ctx.fillRect(this.player.x, this.player.y, this.player.w, this.player.h);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('P', this.player.x + this.player.w / 2, this.player.y + this.player.h / 2 + 4);
+      }
     }
 
     ctx.restore();
+
+    // DEBUG: Screen-space player position indicator (always visible regardless of camera)
+    if (this.state === 'PLAYING') {
+      const screenPx = (this.player.x - this.camera.x) * this.camera.zoom;
+      const screenPy = (this.player.y - this.camera.y) * this.camera.zoom;
+      ctx.save();
+      ctx.fillStyle = '#00ff00';
+      ctx.strokeStyle = '#00ff00';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(screenPx + this.player.w * this.camera.zoom / 2, screenPy + this.player.h * this.camera.zoom / 2, 22, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Crosshair
+      ctx.beginPath();
+      ctx.moveTo(screenPx - 5, screenPy + this.player.h * this.camera.zoom / 2);
+      ctx.lineTo(screenPx + this.player.w * this.camera.zoom + 5, screenPy + this.player.h * this.camera.zoom / 2);
+      ctx.moveTo(screenPx + this.player.w * this.camera.zoom / 2, screenPy - 5);
+      ctx.lineTo(screenPx + this.player.w * this.camera.zoom / 2, screenPy + this.player.h * this.camera.zoom + 5);
+      ctx.stroke();
+
+      // Position readout
+      ctx.fillStyle = '#00ff00';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`POS: ${Math.round(this.player.x)},${Math.round(this.player.y)} | CAM: ${Math.round(this.camera.x)},${Math.round(this.camera.y)} | ZOOM: ${this.camera.zoom.toFixed(2)} | STATE: ${this.state}`, 10, this.height - 8);
+      ctx.restore();
+    }
+
+    // 3. Screen-Space Mini-Map Radar in HUD
+    this.drawMiniMap();
+
+    // 4. World Map Modal Canvas if open
+    if (this.isWorldMapOpen) {
+      this.drawWorldMapModal();
+    }
   }
 
   drawBouncingCoins(ctx) {
@@ -1970,12 +2060,13 @@ class Game {
   drawParallaxBackground(ctx, lvl) {
     const w = this.width;
     const h = this.height;
+    const zone = lvl || this.currentBiome || BIOME_ZONES[0];
 
-    // 1. Sky gradient tailored to level theme
+    // 1. Sky gradient tailored to level/biome theme
     const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-    skyGrad.addColorStop(0, lvl.skyTop || '#0f0e26');
-    skyGrad.addColorStop(0.42, lvl.skyMid || '#23153c');
-    skyGrad.addColorStop(1, lvl.skyBot || '#e58e65');
+    skyGrad.addColorStop(0, zone.skyTop || '#0f0e26');
+    skyGrad.addColorStop(0.42, zone.skyMid || '#23153c');
+    skyGrad.addColorStop(1, zone.skyBot || '#e58e65');
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, w, h);
 
@@ -2030,7 +2121,7 @@ class Game {
     ctx.save();
     const farOffset = -(this.camera.x * 0.05) % 2400;
     const farBaseY = h * 0.74;
-    ctx.fillStyle = lvl.theme === 'crystal' ? '#0e1c38' : (lvl.theme === 'mushroom' ? '#2f143f' : '#23163d');
+    ctx.fillStyle = zone.theme === 'crystal' ? '#0e1c38' : (zone.theme === 'mushroom' ? '#2f143f' : '#23163d');
     ctx.beginPath();
     ctx.moveTo(-100, h);
     for (let i = -1; i < 18; i++) {
@@ -2047,7 +2138,7 @@ class Game {
     ctx.save();
     const midOffset = -(this.camera.x * 0.12) % 2400;
     const midBaseY = h * 0.81;
-    ctx.fillStyle = lvl.theme === 'crystal' ? '#092742' : (lvl.theme === 'mushroom' ? '#3e1a42' : '#1a3c2e');
+    ctx.fillStyle = zone.theme === 'crystal' ? '#092742' : (zone.theme === 'mushroom' ? '#3e1a42' : '#1a3c2e');
     ctx.beginPath();
     ctx.moveTo(-100, h);
     for (let i = -1; i < 24; i++) {
@@ -2060,7 +2151,7 @@ class Game {
     ctx.fill();
 
     // Cute rounded bushes on hilltops
-    ctx.fillStyle = lvl.theme === 'crystal' ? '#00f0ff' : (lvl.theme === 'mushroom' ? '#ff007f' : '#2ec4b6');
+    ctx.fillStyle = zone.theme === 'crystal' ? '#00f0ff' : (zone.theme === 'mushroom' ? '#ff007f' : '#2ec4b6');
     ctx.globalAlpha = 0.35;
     for (let i = -1; i < 24; i++) {
       const hx = i * 160 + midOffset + 80;
@@ -2112,9 +2203,16 @@ class Game {
     ctx.restore();
   }
 
-  drawPlatforms(ctx, lvl) {
+  drawPlatforms(ctx) {
+    const defaultZone = this.currentBiome || BIOME_ZONES[0];
+    const camLeft = this.camera.x - 200;
+    const camRight = this.camera.x + this.width / this.camera.zoom + 200;
+
     for (let p of this.platforms) {
+      if (p.x + p.w < camLeft || p.x > camRight) continue;
+
       ctx.save();
+      const pZone = BIOME_ZONES.find(b => b.id === p.biomeId) || defaultZone;
 
       // Earth body palette tailored to theme
       let earthTop = '#4a2c1d';
@@ -2122,16 +2220,19 @@ class Game {
       let topColor = '#10b981';
       let topColorDark = '#059669';
 
-      if (lvl.theme === 'mushroom') {
+      if (pZone.theme === 'mushroom') {
         earthTop = '#3f1f45';
         earthBot = '#240f28';
-        topColor = '#ff4d6d';
+        topColor = pZone.ambientColor || '#ff4d6d';
         topColorDark = '#c9184a';
-      } else if (lvl.theme === 'crystal') {
+      } else if (pZone.theme === 'crystal') {
         earthTop = '#1e2942';
         earthBot = '#0f172a';
-        topColor = '#00f0ff';
+        topColor = pZone.ambientColor || '#00f0ff';
         topColorDark = '#0284c7';
+      } else {
+        topColor = pZone.ambientColor || '#10b981';
+        topColorDark = '#059669';
       }
 
       // 1. Earth Body with Strata Gradient
@@ -2600,66 +2701,112 @@ class Game {
     }
   }
 
-  drawFlagpole(ctx) {
-    const f = this.flag;
-    ctx.save();
+  // 10 Fast-Travel Waypoint Beacons
+  drawWaypoints(ctx) {
+    if (!this.waypoints) return;
+    const camLeft = this.camera.x - 200;
+    const camRight = this.camera.x + this.width / this.camera.zoom + 200;
 
-    // 1. Base Pedestal
-    ctx.fillStyle = '#3a4756';
-    ctx.strokeStyle = '#1e242b';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.roundRect(f.x - 24, 460, 60, 40, [6, 6, 0, 0]);
-    ctx.fill();
-    ctx.stroke();
+    for (let wp of this.waypoints) {
+      if (wp.x < camLeft || wp.x > camRight) continue;
+      const isActive = this.activeWaypoints.has(wp.id);
+      ctx.save();
+      ctx.translate(wp.x, wp.y);
 
-    // 2. Tall Golden Flagpole
-    const poleGrad = ctx.createLinearGradient(f.x, 0, f.x + f.w, 0);
-    poleGrad.addColorStop(0, '#ffd60a');
-    poleGrad.addColorStop(0.5, '#fff9db');
-    poleGrad.addColorStop(1, '#e5a500');
-    ctx.fillStyle = poleGrad;
-    ctx.fillRect(f.x, f.y, f.w, f.h);
-    ctx.strokeRect(f.x, f.y, f.w, f.h);
+      // 1. Base Pedestal
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = isActive ? '#00f0ff' : '#475569';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.roundRect(-24, 20, 48, 20, [4, 4, 0, 0]);
+      ctx.fill();
+      ctx.stroke();
 
-    // 3. Top Sphere Orb
-    ctx.fillStyle = '#ffbe0b';
-    ctx.shadowColor = '#ffbe0b';
-    ctx.shadowBlur = 14;
-    ctx.beginPath();
-    ctx.arc(f.x + f.w / 2, f.y, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+      // Glowing rune base circle
+      if (isActive) {
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = 16;
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, 36, 32, 6, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
 
-    // 4. Fluttering Star Flag
-    const flagY = f.reached ? Math.min(f.y + 240, f.y + (f.flagSlideY += 5)) : f.y + 15;
-    const wave = Math.sin(Date.now() * 0.008) * 6;
+      // 2. Monolith Spire Pillar
+      const spireGrad = ctx.createLinearGradient(-12, -45, 12, 20);
+      if (isActive) {
+        spireGrad.addColorStop(0, '#00f0ff');
+        spireGrad.addColorStop(0.5, '#0284c7');
+        spireGrad.addColorStop(1, '#0f172a');
+      } else {
+        spireGrad.addColorStop(0, '#64748b');
+        spireGrad.addColorStop(1, '#1e293b');
+      }
+      ctx.fillStyle = spireGrad;
+      ctx.beginPath();
+      ctx.moveTo(-12, 20);
+      ctx.lineTo(-7, -40);
+      ctx.lineTo(0, -52);
+      ctx.lineTo(7, -40);
+      ctx.lineTo(12, 20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-    ctx.fillStyle = '#ff007f';
-    ctx.shadowColor = '#ff007f';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(f.x + f.w, flagY);
-    ctx.quadraticCurveTo(f.x + f.w + 35, flagY + wave, f.x + f.w + 65, flagY + 12);
-    ctx.lineTo(f.x + f.w + 65, flagY + 52);
-    ctx.quadraticCurveTo(f.x + f.w + 35, flagY + 40 + wave, f.x + f.w, flagY + 52);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+      // 3. Floating Beacon Crystal Orb at apex
+      const floatBob = Math.sin(Date.now() * 0.005 + wp.id) * 3;
+      const orbY = -64 + floatBob;
+      ctx.shadowColor = isActive ? '#00f0ff' : '#64748b';
+      ctx.shadowBlur = isActive ? 18 : 6;
+      ctx.fillStyle = isActive ? '#00f0ff' : '#94a3b8';
+      ctx.beginPath();
+      ctx.arc(0, orbY, 9, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Star icon inside flag
-    ctx.fillStyle = '#ffd60a';
-    ctx.font = '20px sans-serif';
-    ctx.fillText('★', f.x + f.w + 24, flagY + 36);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, orbY, 4, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.restore();
+      // Active Vertical Energy Ray
+      if (isActive) {
+        const beamAlpha = Math.sin(Date.now() * 0.01 + wp.id) * 0.15 + 0.35;
+        const beamGrad = ctx.createLinearGradient(0, orbY, 0, -280);
+        beamGrad.addColorStop(0, `rgba(0, 240, 255, ${beamAlpha})`);
+        beamGrad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+        ctx.fillStyle = beamGrad;
+        ctx.fillRect(-6, -280, 12, orbY + 280);
+      }
+
+      // 4. In-World Waypoint Name & Status
+      ctx.shadowBlur = 0;
+      ctx.font = '900 10px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = isActive ? '#00f0ff' : '#cbd5e1';
+      ctx.fillText(wp.name.toUpperCase(), 0, -84 + floatBob);
+
+      ctx.font = '700 8px Orbitron, sans-serif';
+      ctx.fillStyle = isActive ? '#10b981' : '#f59e0b';
+      ctx.fillText(isActive ? '● WAYPOINT ACTIVE' : '○ STEP TO ACTIVATE', 0, -74 + floatBob);
+
+      ctx.restore();
+    }
   }
 
-  // --- Weapon Chest & Projectiles Rendering ---
+  // 10 Arsenal Weapon Chests
+  drawWeaponChests(ctx) {
+    if (!this.weaponChests) return;
+    const camLeft = this.camera.x - 200;
+    const camRight = this.camera.x + this.width / this.camera.zoom + 200;
 
-  drawWeaponChest(ctx) {
-    const c = this.weaponChest;
-    if (!c) return;
+    for (let c of this.weaponChests) {
+      if (c.x < camLeft || c.x > camRight) continue;
+      this.drawSingleWeaponChest(ctx, c);
+    }
+  }
+
+  drawSingleWeaponChest(ctx, c) {
     ctx.save();
 
     if (!c.opened) {
@@ -2748,86 +2895,196 @@ class Game {
     ctx.restore();
   }
 
-  drawEnergyGate(ctx) {
-    if (!this.boss || !this.boss.alive) return;
-    const gateX = this.flag.x - 70;
-    const topY = 140;
-    const botY = 480;
+  // The Great Celestial Star Gate (unlocks with 10 Sigils)
+  drawStarGate(ctx) {
+    const gx = 21550;
+    const gy = 260;
+    const camLeft = this.camera.x - 300;
+    const camRight = this.camera.x + this.width / this.camera.zoom + 300;
+    if (gx < camLeft || gx > camRight) return;
 
     ctx.save();
+    ctx.translate(gx, gy);
 
-    // 1. Top Emitter Pylon
-    ctx.fillStyle = '#334155';
-    ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = 2.4;
+    const sigilsCount = this.claimedSigils.size;
+    const isUnlocked = sigilsCount >= 10;
+
+    // 1. Massive Colossal Stone Gateway Pillars
+    const archGrad = ctx.createLinearGradient(-70, 0, 70, 0);
+    archGrad.addColorStop(0, '#0f0e26');
+    archGrad.addColorStop(0.5, '#2e1065');
+    archGrad.addColorStop(1, '#0f0e26');
+    ctx.fillStyle = archGrad;
+    ctx.strokeStyle = isUnlocked ? '#ffd60a' : '#7209b7';
+    ctx.lineWidth = 3.5;
+
+    // Left pillar
     ctx.beginPath();
-    ctx.roundRect(gateX - 16, topY - 24, 32, 24, [6, 6, 2, 2]);
+    ctx.roundRect(-80, -100, 32, 240, [8, 8, 0, 0]);
     ctx.fill();
     ctx.stroke();
 
-    // Glowing Emitter Core Orb
-    const orbPulse = Math.sin(Date.now() * 0.01) * 0.2 + 0.8;
-    ctx.fillStyle = '#ff0054';
-    ctx.shadowColor = '#ff0054';
-    ctx.shadowBlur = 16 * orbPulse;
+    // Right pillar
     ctx.beginPath();
-    ctx.arc(gateX, topY - 12, 7 * orbPulse, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 2. Bottom Ground Anchor
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#1e293b';
-    ctx.beginPath();
-    ctx.roundRect(gateX - 22, botY, 44, 20, [4, 4, 0, 0]);
+    ctx.roundRect(48, -100, 32, 240, [8, 8, 0, 0]);
     ctx.fill();
     ctx.stroke();
 
-    // 3. Electric Laser Energy Beams
-    const laserAlpha = Math.sin(Date.now() * 0.015) * 0.2 + 0.75;
-    ctx.shadowColor = '#ff0054';
-    ctx.shadowBlur = 18;
-    ctx.strokeStyle = `rgba(255, 0, 84, ${laserAlpha})`;
-    ctx.lineWidth = 6;
+    // Archway lintel
     ctx.beginPath();
-    ctx.moveTo(gateX, topY);
-    ctx.lineTo(gateX, botY);
+    ctx.roundRect(-95, -135, 190, 40, [12, 12, 4, 4]);
+    ctx.fill();
     ctx.stroke();
 
-    // White core hot beam
-    ctx.strokeStyle = `rgba(255, 255, 255, ${laserAlpha * 0.9})`;
-    ctx.lineWidth = 2.4;
-    ctx.stroke();
+    // 2. 10 Sigil Sockets on the Lintel
+    for (let i = 1; i <= 10; i++) {
+      const sx = -72 + (i - 1) * 16;
+      const sy = -115;
+      const hasSigil = this.claimedSigils.has(i);
 
-    // Crackling horizontal lightning arcs
-    ctx.strokeStyle = '#00f0ff';
-    ctx.lineWidth = 1.8;
-    ctx.beginPath();
-    for (let ly = topY + 20; ly < botY - 20; ly += 45) {
-      const jitter = (Math.random() - 0.5) * 14;
-      ctx.moveTo(gateX - 10, ly);
-      ctx.lineTo(gateX + jitter, ly + 8);
-      ctx.lineTo(gateX + 10, ly + 16);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+      if (hasSigil) {
+        ctx.fillStyle = '#ffd60a';
+        ctx.shadowColor = '#ffd60a';
+        ctx.shadowBlur = 12;
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 8px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('★', sx, sy);
+      } else {
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fill();
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+      ctx.restore();
     }
-    ctx.stroke();
 
-    // 4. Floating Holographic "BOSS LOCKED" Badge
-    const badgeY = (topY + botY) / 2 + Math.sin(Date.now() * 0.006) * 5;
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-    ctx.strokeStyle = '#ff0054';
-    ctx.lineWidth = 2;
-    ctx.shadowColor = '#ff0054';
+    // 3. Central Event Horizon / Star Portal
+    ctx.save();
+    if (isUnlocked) {
+      // Swirling iridescent vortex
+      const time = Date.now() * 0.002;
+      const radGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, 75);
+      radGrad.addColorStop(0, '#ffffff');
+      radGrad.addColorStop(0.3, '#ffd60a');
+      radGrad.addColorStop(0.6, '#f72585');
+      radGrad.addColorStop(1, 'rgba(114, 9, 183, 0.4)');
+      ctx.fillStyle = radGrad;
+      ctx.shadowColor = '#ffd60a';
+      ctx.shadowBlur = 30;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 60, 95, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Swirl rays
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.2;
+      for (let k = 0; k < 6; k++) {
+        const a = time * 2 + (k * Math.PI) / 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(Math.cos(a + 0.5) * 40, Math.sin(a + 0.5) * 60, Math.cos(a) * 55, Math.sin(a) * 90);
+        ctx.stroke();
+      }
+    } else {
+      // Dark Energy Barrier with Force Grid
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 56, 90, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const barrierAlpha = Math.sin(Date.now() * 0.008) * 0.3 + 0.7;
+      ctx.strokeStyle = `rgba(247, 37, 133, ${barrierAlpha})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Barrier grid lines
+      ctx.strokeStyle = 'rgba(247, 37, 133, 0.25)';
+      ctx.lineWidth = 1;
+      for (let ly = -80; ly <= 80; ly += 20) {
+        ctx.beginPath();
+        ctx.moveTo(-45, ly);
+        ctx.lineTo(45, ly);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    // 4. Floating Holographic Portal Marquee
+    const badgeBob = Math.sin(Date.now() * 0.005) * 4;
+    const badgeY = -155 + badgeBob;
     ctx.shadowBlur = 12;
+    ctx.shadowColor = isUnlocked ? '#ffd60a' : '#f72585';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+    ctx.strokeStyle = isUnlocked ? '#ffd60a' : '#f72585';
+    ctx.lineWidth = 2.2;
     ctx.beginPath();
-    ctx.roundRect(gateX - 58, badgeY - 16, 116, 32, 8);
+    ctx.roundRect(-120, badgeY - 18, 240, 36, 8);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#ffffff';
     ctx.shadowBlur = 0;
-    ctx.font = '900 10px Orbitron, sans-serif';
+    ctx.font = '900 11px Orbitron, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('🔒 BOSS LOCK', gateX, badgeY);
+    if (isUnlocked) {
+      ctx.fillStyle = '#ffd60a';
+      ctx.fillText('✨ STAR GATE OPEN — STEP IN TO ASCEND ✨', 0, badgeY);
+    } else {
+      ctx.fillText(`🔒 STAR GATE SEALED (${sigilsCount}/10 SIGILS)`, 0, badgeY);
+    }
+
+    ctx.restore();
+  }
+
+  drawClaimedSigilAltar(ctx, b) {
+    const altarX = b.x + b.w / 2;
+    const altarY = b.origY || b.y;
+    const camLeft = this.camera.x - 200;
+    const camRight = this.camera.x + this.width / this.camera.zoom + 200;
+    if (altarX < camLeft || altarX > camRight) return;
+
+    ctx.save();
+    ctx.translate(altarX, altarY + 20);
+
+    // Stone Pedestal
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#ffd60a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(-20, 0, 40, 16, [4, 4, 0, 0]);
+    ctx.fill();
+    ctx.stroke();
+
+    // Floating Rotating Golden Sigil Star
+    const starBob = Math.sin(Date.now() * 0.006 + b.id) * 4;
+    const starY = -22 + starBob;
+    ctx.shadowColor = '#ffd60a';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = '#ffd60a';
+    ctx.beginPath();
+    ctx.arc(0, starY, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('★', 0, starY);
+
+    // Altar Text
+    ctx.shadowBlur = 0;
+    ctx.font = '800 8px Orbitron, sans-serif';
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillText(`SIGIL 0${b.id} CLAIMED`, 0, -42 + starBob);
 
     ctx.restore();
   }
@@ -2983,8 +3240,28 @@ class Game {
 
   // --- 10 Reference Monster Boss Visuals ---
 
-  drawBoss(ctx) {
-    const b = this.boss;
+  drawBosses(ctx) {
+    if (!this.bosses) return;
+    const camLeft = this.camera.x - 200;
+    const camRight = this.camera.x + this.width / this.camera.zoom + 200;
+
+    for (let b of this.bosses) {
+      if (!b.alive) {
+        if (this.claimedSigils.has(b.id)) {
+          this.drawClaimedSigilAltar(ctx, b);
+        }
+        continue;
+      }
+      if (b.x + b.w < camLeft || b.x > camRight) continue;
+      this.drawSingleBoss(ctx, b);
+    }
+  }
+
+  drawBoss(ctx, b) {
+    this.drawSingleBoss(ctx, b || this.boss);
+  }
+
+  drawSingleBoss(ctx, b) {
     if (!b || !b.alive) return;
 
     ctx.save();
@@ -3812,6 +4089,355 @@ class Game {
     }
   }
 
+  // --- Mini-Map Radar & World Map Rendering ---
+
+  drawMiniMap() {
+    if (!this.minimapCanvas) return;
+    const ctx = this.minimapCtx || this.minimapCanvas.getContext('2d');
+    if (!this.minimapCtx) this.minimapCtx = ctx;
+
+    const mw = this.minimapCanvas.width;
+    const mh = this.minimapCanvas.height;
+
+    // 1. Radar background
+    ctx.fillStyle = 'rgba(6, 12, 28, 0.94)';
+    ctx.fillRect(0, 0, mw, mh);
+
+    // Crosshair grid
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(mw / 2, 0);
+    ctx.lineTo(mw / 2, mh);
+    ctx.moveTo(0, mh / 2);
+    ctx.lineTo(mw, mh / 2);
+    ctx.stroke();
+
+    // Circular range ring
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
+    ctx.beginPath();
+    ctx.arc(mw / 2, mh / 2, 16, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Radar scan beam
+    const sweep = (Date.now() * 0.09) % mw;
+    const sweepGrad = ctx.createLinearGradient(sweep - 20, 0, sweep, 0);
+    sweepGrad.addColorStop(0, 'rgba(0, 240, 255, 0)');
+    sweepGrad.addColorStop(1, 'rgba(0, 240, 255, 0.35)');
+    ctx.fillStyle = sweepGrad;
+    ctx.fillRect(sweep - 20, 0, 20, mh);
+
+    // Coordinate mapping centered around player
+    const px = this.player.x;
+    const range = 2200;
+    const minWorldX = px - range / 2;
+    const worldScale = mw / range;
+
+    const toMapX = (wx) => (wx - minWorldX) * worldScale;
+    const toMapY = (wy) => Math.max(6, Math.min(mh - 6, (wy / 580) * mh));
+
+    // Draw platforms in range (bright neon turf line)
+    for (let p of this.platforms) {
+      if (p.x + p.w < minWorldX || p.x > minWorldX + range) continue;
+      const mx = toMapX(p.x);
+      const my = toMapY(p.y);
+      const mwPlat = Math.max(4, p.w * worldScale);
+      ctx.fillStyle = '#00f59b';
+      ctx.fillRect(mx, my, mwPlat, 3);
+    }
+
+    // Draw Waypoints (bright cyan beacons)
+    for (let wp of this.waypoints) {
+      if (wp.x < minWorldX || wp.x > minWorldX + range) continue;
+      const wx = toMapX(wp.x);
+      const wy = toMapY(wp.y);
+      const isActive = this.activeWaypoints.has(wp.id);
+      ctx.fillStyle = isActive ? '#00f0ff' : '#64748b';
+      ctx.shadowColor = isActive ? '#00f0ff' : 'transparent';
+      ctx.shadowBlur = isActive ? 8 : 0;
+      ctx.beginPath();
+      ctx.arc(wx, wy, isActive ? 3.5 : 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Draw Weapon Shrines (gold)
+    for (let w of this.weaponChests) {
+      if (w.x < minWorldX || w.x > minWorldX + range) continue;
+      const wx = toMapX(w.x);
+      const wy = toMapY(w.y);
+      ctx.fillStyle = w.opened ? '#64748b' : '#ffd60a';
+      ctx.shadowColor = w.opened ? 'transparent' : '#ffd60a';
+      ctx.shadowBlur = w.opened ? 0 : 6;
+      ctx.beginPath();
+      ctx.arc(wx, wy, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Draw Bosses (glowing danger red)
+    for (let b of this.bosses) {
+      if (!b.alive || b.x < minWorldX || b.x > minWorldX + range) continue;
+      const bx = toMapX(b.x);
+      const by = toMapY(b.y);
+      ctx.fillStyle = '#ff0054';
+      ctx.shadowColor = '#ff0054';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(bx, by, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+
+    // Draw Star Gate if in range
+    if (21550 >= minWorldX && 21550 <= minWorldX + range) {
+      const gx = toMapX(21550);
+      ctx.fillStyle = this.claimedSigils.size >= 10 ? '#ffd60a' : '#7209b7';
+      ctx.fillRect(gx - 2, 8, 4, mh - 16);
+    }
+
+    // Draw Player marker at radar center
+    const pmx = mw / 2;
+    const pmy = toMapY(this.player.y);
+    const pulse = Math.sin(Date.now() * 0.012) * 2;
+
+    // Pulse wave
+    ctx.strokeStyle = 'rgba(255, 214, 10, 0.6)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(pmx, pmy, 6 + pulse, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Player core
+    ctx.fillStyle = '#ffd60a';
+    ctx.shadowColor = '#ffd60a';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(pmx, pmy, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Direction arrow
+    const faceDir = (this.player.facing >= 0) ? 1 : -1;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(pmx + faceDir * 8, pmy);
+    ctx.lineTo(pmx + faceDir * 3, pmy - 3);
+    ctx.lineTo(pmx + faceDir * 3, pmy + 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Biome code tag
+    if (this.currentBiome) {
+      ctx.fillStyle = this.currentBiome.ambientColor || '#00f0ff';
+      ctx.font = '900 7.5px Orbitron, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(this.currentBiome.code, 5, 10);
+    }
+  }
+
+  drawWorldMapModal() {
+    if (!this.worldMapCanvas) return;
+    const ctx = this.worldMapCtx || this.worldMapCanvas.getContext('2d');
+    if (!this.worldMapCtx) this.worldMapCtx = ctx;
+
+    const w = this.worldMapCanvas.width;
+    const h = this.worldMapCanvas.height;
+
+    // 1. Deep Space Void Background
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+    bgGrad.addColorStop(0, '#060814');
+    bgGrad.addColorStop(1, '#0e1329');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    // World X span: -100 to 22,000 (total ~22,100px)
+    const WORLD_START = -100;
+    const WORLD_END = 22100;
+    const WORLD_WIDTH = WORLD_END - WORLD_START;
+    const PADDING_X = 40;
+    const MAP_DRAW_W = w - PADDING_X * 2;
+    const toMapX = (wx) => PADDING_X + ((wx - WORLD_START) / WORLD_WIDTH) * MAP_DRAW_W;
+
+    // 2. Render 10 Biome Columns & Silhouettes
+    const biomeY = 28;
+    const biomeH = 145;
+
+    for (let b of BIOME_ZONES) {
+      const bx1 = toMapX(b.startX);
+      const bx2 = toMapX(b.endX);
+      const bw = bx2 - bx1;
+
+      // Biome column atmospheric gradient
+      const zoneGrad = ctx.createLinearGradient(bx1, biomeY, bx1, biomeY + biomeH);
+      zoneGrad.addColorStop(0, b.skyTop || '#111827');
+      zoneGrad.addColorStop(0.55, b.skyMid || '#1f2937');
+      zoneGrad.addColorStop(1, b.skyBot || '#374151');
+      ctx.fillStyle = zoneGrad;
+      ctx.fillRect(bx1, biomeY, bw, biomeH);
+
+      // Biome border
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(bx1, biomeY, bw, biomeH);
+
+      // Biome Zone Label
+      ctx.fillStyle = b.ambientColor || '#00f0ff';
+      ctx.font = '900 8px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(b.code, bx1 + bw / 2, biomeY - 12);
+
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '700 7.5px Orbitron, sans-serif';
+      ctx.fillText(b.name.split(' ')[0], bx1 + bw / 2, biomeY - 3);
+    }
+
+    // 3. Central Traversable World Pathway
+    const pathY = biomeY + biomeH * 0.64;
+    ctx.strokeStyle = 'rgba(255, 214, 10, 0.35)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(PADDING_X, pathY);
+    ctx.lineTo(w - PADDING_X, pathY);
+    ctx.stroke();
+
+    // 4. Draw Waypoint Nodes
+    for (let wp of this.waypoints) {
+      const mx = toMapX(wp.x);
+      const my = pathY;
+      const isActive = this.activeWaypoints.has(wp.id);
+      const isCur = this.lastCheckpointId === wp.id;
+
+      // Glow ring
+      if (isActive) {
+        ctx.fillStyle = isCur ? 'rgba(255, 214, 10, 0.3)' : 'rgba(0, 240, 255, 0.25)';
+        ctx.beginPath();
+        ctx.arc(mx, my, isCur ? 11 : 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Pin body
+      ctx.fillStyle = isCur ? '#ffd60a' : (isActive ? '#00f0ff' : '#475569');
+      ctx.beginPath();
+      ctx.arc(mx, my, isCur ? 6 : 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Node label
+      ctx.fillStyle = isActive ? '#ffffff' : '#94a3b8';
+      ctx.font = '800 7px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`W${wp.id}`, mx, my + 14);
+    }
+
+    // 5. Draw Boss Monster Locations & Sigil Badges
+    for (let b of this.bosses) {
+      const bx = toMapX(b.x);
+      const by = pathY - 32;
+      const isClaimed = this.claimedSigils.has(b.id);
+
+      ctx.save();
+      ctx.fillStyle = isClaimed ? '#ffd60a' : (b.alive ? '#ff0054' : '#64748b');
+      ctx.beginPath();
+      ctx.arc(bx, by, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 7.5px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(isClaimed ? '★' : '💀', bx, by);
+      ctx.restore();
+    }
+
+    // 6. Draw Weapon Shrines
+    for (let ws of this.weaponChests) {
+      const wx = toMapX(ws.x);
+      const wy = pathY + 28;
+      const isUnlocked = this.inventory.some(inv => inv.id === ws.weapon.id);
+
+      ctx.fillStyle = isUnlocked ? '#00f59b' : '#f59e0b';
+      ctx.font = '9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ws.weapon.icon, wx, wy);
+    }
+
+    // 7. Star Gate Terminal Marker
+    const gateMx = toMapX(21550);
+    const gateUnlocked = this.claimedSigils.size >= 10;
+    ctx.fillStyle = gateUnlocked ? '#ffd60a' : '#7209b7';
+    ctx.shadowColor = gateUnlocked ? '#ffd60a' : '#7209b7';
+    ctx.shadowBlur = 12;
+    ctx.fillRect(gateMx - 4, biomeY + 10, 8, biomeH - 20);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = gateUnlocked ? '#ffd60a' : '#c084fc';
+    ctx.font = '900 7px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('STAR GATE', gateMx, biomeY - 4);
+
+    // 8. Player Pulsing "YOU ARE HERE" Beacon
+    const playerMx = toMapX(this.player.x);
+    const playerPulse = Math.sin(Date.now() * 0.008) * 3;
+
+    ctx.save();
+    ctx.shadowColor = '#ffd60a';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = 'rgba(255, 214, 10, 0.4)';
+    ctx.beginPath();
+    ctx.arc(playerMx, pathY, 12 + playerPulse, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffd60a';
+    ctx.beginPath();
+    ctx.arc(playerMx, pathY, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(playerMx, pathY, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Animated "YOU" tag
+    const tagBob = Math.sin(Date.now() * 0.006) * 3;
+    ctx.fillStyle = '#ffd60a';
+    ctx.font = '900 7.5px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('▲ YOU', playerMx, pathY - 14 + tagBob);
+    ctx.restore();
+
+    // 9. Bottom Legend Bar
+    const legendY = h - 10;
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '700 7.5px Orbitron, sans-serif';
+    ctx.textAlign = 'left';
+    const progressPct = Math.min(100, Math.max(0, Math.round((Math.max(0, this.player.x) / 21550) * 100)));
+    ctx.fillText(`EXPLORATION PROGRESS: ${progressPct}%   |   BEACONS: ${this.activeWaypoints.size}/10   |   SIGILS: ${this.claimedSigils.size}/10   |   WEAPONS: ${this.inventory.length}/10`, PADDING_X, legendY);
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#00f0ff';
+    ctx.fillText('CLICK ANY ACTIVE BEACON IN LIST TO FAST-TRAVEL INSTANTLY', w - PADDING_X, legendY);
+  }
+
   // --- UI & HUD Synchronization ---
 
   updateHUD() {
@@ -3988,12 +4614,21 @@ class Game {
   // --- Game Loop ---
 
   gameLoop(currentTime) {
-    const dt = Math.min((currentTime - this.lastTime) / 1000, 0.1);
+    if (!this.lastTime) this.lastTime = currentTime;
+    const elapsed = Math.min((currentTime - this.lastTime) / 1000, 0.1);
     this.lastTime = currentTime;
 
-    this.update(dt);
-    this.draw();
+    // Fixed 60Hz physics step: guarantees stable, smooth, identical speed on 60Hz, 120Hz, 144Hz, 240Hz screens
+    this.physicsAccumulator = (this.physicsAccumulator || 0) + elapsed;
+    const FIXED_STEP = 1 / 60;
+    let updates = 0;
+    while (this.physicsAccumulator >= FIXED_STEP && updates < 5) {
+      this.update(FIXED_STEP);
+      this.physicsAccumulator -= FIXED_STEP;
+      updates++;
+    }
 
+    this.draw();
     requestAnimationFrame((t) => this.gameLoop(t));
   }
 }
