@@ -86,7 +86,9 @@ class Game {
       alloyVal: document.getElementById('alloy-val'),
       ammoVal: document.getElementById('ammo-val'),
       prompt: document.getElementById('interaction-prompt'),
-      objectiveText: document.getElementById('objective-text')
+      objectiveText: document.getElementById('objective-text'),
+      podDist: document.getElementById('pod-dist-val'),
+      podDir: document.getElementById('pod-dir-val')
     };
 
     // Quick start button click
@@ -352,6 +354,32 @@ class Game {
     this.ui.fuelVal.textContent = `${this.player.inventory.bioFuel}`;
     this.ui.alloyVal.textContent = `${this.player.inventory.alienAlloy}`;
     this.ui.ammoVal.textContent = `${this.player.inventory.ammo}`;
+
+    // Crash Pod Beacon Waypoint Telemetry
+    const distToPod = Math.round(Math.hypot(this.player.position.x, this.player.position.z));
+    if (this.ui.podDist) {
+      this.ui.podDist.textContent = `${distToPod}m`;
+    }
+    if (this.ui.podDir) {
+      if (distToPod < 6) {
+        this.ui.podDir.textContent = '[AT POD]';
+        this.ui.podDir.style.color = '#00ff88';
+      } else {
+        // Compute relative angle to (0, 0) based on player yaw
+        const angleToPod = Math.atan2(-this.player.position.x, -this.player.position.z);
+        let relAngle = angleToPod - this.player.yaw;
+        while (relAngle < -Math.PI) relAngle += Math.PI * 2;
+        while (relAngle > Math.PI) relAngle -= Math.PI * 2;
+
+        let dir = 'AHEAD';
+        if (relAngle > Math.PI * 0.7 || relAngle < -Math.PI * 0.7) dir = 'BEHIND';
+        else if (relAngle > Math.PI * 0.25) dir = 'RIGHT';
+        else if (relAngle < -Math.PI * 0.25) dir = 'LEFT';
+
+        this.ui.podDir.textContent = `[${dir}]`;
+        this.ui.podDir.style.color = '#ffaa00';
+      }
+    }
 
     // Objective Directive
     if (this.pod.state === 'DEFENDING') {
