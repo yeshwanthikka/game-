@@ -1,0 +1,10 @@
+{
+  "name": "survive-and-run-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "server": "npm run start --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "npm run dev --prefix client"
+  }
+}
