@@ -3,6 +3,10 @@ import { Terrain } from './world/terrain.js';
 import { SkyManager } from './world/sky.js';
 import { PlayerController } from './entities/player.js';
 import { CreatureManager } from './entities/spawner.js';
+import { WeaponSystem } from './entities/weapon.js';
+import { ResourceManager } from './world/resources.js';
+import { EscapePod } from './world/pod.js';
+import { sound } from './audio/sound.js';
 import { api } from './net/api.js';
 
 class Game {
@@ -11,6 +15,7 @@ class Game {
     this.clock = new THREE.Clock();
     this.survivalSeconds = 0;
     this.isGameOver = false;
+    this.isVictory = false;
 
     // Setup Three.js Core
     this.scene = new THREE.Scene();
@@ -33,6 +38,24 @@ class Game {
     this.sky = new SkyManager(this.scene);
     this.player = new PlayerController(this.camera, this.renderer.domElement, this.terrain);
     this.creatureManager = new CreatureManager(this.scene, this.terrain);
+
+    // Phase 3 Systems
+    this.weapon = new WeaponSystem(this.camera, this.scene, this.terrain);
+    this.resources = new ResourceManager(this.scene, this.terrain);
+    this.pod = new EscapePod(this.scene, this.terrain);
+
+    // Player action callbacks
+    this.player.onShoot = () => {
+      if (!this.isGameOver && !this.isVictory) {
+        this.weapon.fire(this.player, this.creatureManager, this.resources);
+      }
+    };
+
+    this.player.onInteract = () => {
+      if (!this.isGameOver && !this.isVictory) {
+        this.handlePlayerInteract();
+      }
+    };
 
     // Initial spawn location on terrain
     const spawnY = this.terrain.getHeight(0, 10) + this.player.eyeHeight;
@@ -61,7 +84,9 @@ class Game {
       partsVal: document.getElementById('parts-val'),
       fuelVal: document.getElementById('fuel-val'),
       alloyVal: document.getElementById('alloy-val'),
-      ammoVal: document.getElementById('ammo-val')
+      ammoVal: document.getElementById('ammo-val'),
+      prompt: document.getElementById('interaction-prompt'),
+      objectiveText: document.getElementById('objective-text')
     };
 
     // Quick start button click
@@ -115,7 +140,7 @@ class Game {
     closeLb.addEventListener('click', () => {
       modalLb.style.display = 'none';
       const blocker = document.getElementById('blocker');
-      if (blocker && !this.player.isLocked) blocker.style.display = 'flex';
+      if (blocker && !this.player.isLocked && !this.isGameOver && !this.isVictory) blocker.style.display = 'flex';
     });
 
     bestiaryBtn.addEventListener('click', async () => {
@@ -149,7 +174,7 @@ class Game {
     closeBestiary.addEventListener('click', () => {
       modalBestiary.style.display = 'none';
       const blocker = document.getElementById('blocker');
-      if (blocker && !this.player.isLocked && !this.isGameOver) blocker.style.display = 'flex';
+      if (blocker && !this.player.isLocked && !this.isGameOver && !this.isVictory) blocker.style.display = 'flex';
     });
 
     // Respawn button
@@ -169,6 +194,48 @@ class Game {
 
         this.renderer.domElement.requestPointerLock();
       });
+    }
+
+    // Victory Restart button
+    const victoryBtn = document.getElementById('btn-victory-restart');
+    if (victoryBtn) {
+      victoryBtn.addEventListener('click', () => {
+        const modalVictory = document.getElementById('modal-victory');
+        if (modalVictory) modalVictory.style.display = 'none';
+
+        this.player.health = this.player.maxHealth;
+        this.player.stamina = this.player.maxStamina;
+        this.player.inventory = { bioFuel: 0, alienAlloy: 0, shipParts: 0, ammo: 30 };
+        this.player.kills = 0;
+        const spawnY = this.terrain.getHeight(0, 10) + this.player.eyeHeight;
+        this.player.position.set(0, spawnY, 10);
+        this.player.velocity.set(0, 0, 0);
+        this.survivalSeconds = 0;
+        this.isGameOver = false;
+        this.isVictory = false;
+
+        this.pod.destroy();
+        this.pod = new EscapePod(this.scene, this.terrain);
+
+        this.renderer.domElement.requestPointerLock();
+      });
+    }
+  }
+
+  handlePlayerInteract() {
+    // 1. Pod Interaction
+    const podPrompt = this.pod.getPrompt(this.player.position, this.player.inventory);
+    if (podPrompt) {
+      if (podPrompt.canLaunch) {
+        this.pod.initiateLaunch(this.player.inventory);
+      }
+      return;
+    }
+
+    // 2. Resource Harvest / Ship Part Salvage
+    const nearby = this.resources.getNearbyInteractive(this.player.position);
+    if (nearby) {
+      this.resources.interact(this.player, nearby);
     }
   }
 
@@ -203,11 +270,45 @@ class Game {
       await api.submitRun({
         survivalTimeSec: Math.round(this.survivalSeconds),
         outcome: 'death',
-        kills: 0,
+        kills: this.player.kills || 0,
         resourcesCollected: this.player.inventory.shipParts + this.player.inventory.bioFuel + this.player.inventory.alienAlloy
       });
     } catch (err) {
       console.warn('Unable to log run telemetry:', err);
+    }
+  }
+
+  async handleVictory() {
+    this.isVictory = true;
+    if (document.exitPointerLock) document.exitPointerLock();
+
+    const blocker = document.getElementById('blocker');
+    if (blocker) blocker.style.display = 'none';
+
+    const modalVictory = document.getElementById('modal-victory');
+    const timeElem = document.getElementById('victory-time');
+    const killsElem = document.getElementById('victory-kills');
+    const resElem = document.getElementById('victory-resources');
+
+    const mins = Math.floor(this.survivalSeconds / 60).toString().padStart(2, '0');
+    const secs = Math.floor(this.survivalSeconds % 60).toString().padStart(2, '0');
+    const timeStr = `${mins}:${secs} (${Math.round(this.survivalSeconds)}s)`;
+    const totalRes = this.player.inventory.shipParts + this.player.inventory.bioFuel + this.player.inventory.alienAlloy;
+
+    if (timeElem) timeElem.textContent = timeStr;
+    if (killsElem) killsElem.textContent = `${this.player.kills || 0}`;
+    if (resElem) resElem.textContent = `${totalRes}`;
+    if (modalVictory) modalVictory.style.display = 'block';
+
+    try {
+      await api.submitRun({
+        survivalTimeSec: Math.round(this.survivalSeconds),
+        outcome: 'extraction',
+        kills: this.player.kills || 0,
+        resourcesCollected: totalRes
+      });
+    } catch (err) {
+      console.warn('Unable to log victory telemetry:', err);
     }
   }
 
@@ -218,7 +319,7 @@ class Game {
   }
 
   updateHUD(skyData, delta) {
-    if (this.player.isLocked && !this.isGameOver) {
+    if (this.player.isLocked && !this.isGameOver && !this.isVictory) {
       this.survivalSeconds += delta;
       const mins = Math.floor(this.survivalSeconds / 60).toString().padStart(2, '0');
       const secs = Math.floor(this.survivalSeconds % 60).toString().padStart(2, '0');
@@ -251,6 +352,32 @@ class Game {
     this.ui.fuelVal.textContent = `${this.player.inventory.bioFuel}`;
     this.ui.alloyVal.textContent = `${this.player.inventory.alienAlloy}`;
     this.ui.ammoVal.textContent = `${this.player.inventory.ammo}`;
+
+    // Objective Directive
+    if (this.pod.state === 'DEFENDING') {
+      this.ui.objectiveText.textContent = `DEFEND POD! LAUNCH IN ${Math.ceil(this.pod.defenseTimer)}s`;
+      this.ui.objectiveText.style.color = '#00ff88';
+    } else if (this.pod.isReadyToRepair(this.player.inventory)) {
+      this.ui.objectiveText.textContent = 'ALL REPAIR PARTS ACQUIRED! RETURN TO ESCAPE POD (0, 0)';
+      this.ui.objectiveText.style.color = '#00f0ff';
+    } else {
+      this.ui.objectiveText.textContent = `Salvage 4 Parts [${this.player.inventory.shipParts}/4] & Bio-Fuel [${this.player.inventory.bioFuel}/25] to repair Pod`;
+      this.ui.objectiveText.style.color = '#fff';
+    }
+
+    // Interactive Proximity Prompt
+    const podPrompt = this.pod.getPrompt(this.player.position, this.player.inventory);
+    const nearbyResource = this.resources.getNearbyInteractive(this.player.position);
+
+    if (podPrompt) {
+      this.ui.prompt.textContent = podPrompt.prompt;
+      this.ui.prompt.style.display = 'block';
+    } else if (nearbyResource) {
+      this.ui.prompt.textContent = nearbyResource.prompt;
+      this.ui.prompt.style.display = 'block';
+    } else {
+      this.ui.prompt.style.display = 'none';
+    }
   }
 
   animate() {
@@ -262,8 +389,20 @@ class Game {
     this.player.update(delta);
     const skyData = this.sky.update(delta, this.player.position);
 
-    // Update creature ecology & handle attack damage
-    if (!this.isGameOver) {
+    if (!this.isGameOver && !this.isVictory) {
+      // Update weapon viewmodel & tracers
+      this.weapon.update(delta);
+
+      // Update world resource beacons & loot
+      this.resources.update(delta, this.player.position, this.player);
+
+      // Update pod countdown & liftoff
+      const podStatus = this.pod.update(delta, this.player.position, this.creatureManager);
+      if (podStatus && podStatus.extracted && !this.isVictory) {
+        this.handleVictory();
+      }
+
+      // Update creature ecology & handle attack damage
       const creatureResult = this.creatureManager.update(delta, this.player.position, skyData.isNight);
       if (creatureResult.damageDealt > 0) {
         this.player.health = Math.max(0, this.player.health - creatureResult.damageDealt);
@@ -272,6 +411,8 @@ class Game {
           this.handlePlayerDeath();
         }
       }
+    } else if (this.isVictory) {
+      this.pod.update(delta, this.player.position, this.creatureManager);
     }
 
     this.updateHUD(skyData, delta);

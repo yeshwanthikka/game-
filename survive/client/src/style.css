@@ -351,3 +351,30 @@ body, html {
 #damage-overlay.active {
   opacity: 1;
 }
+
+/* Interaction Tooltip */
+#interaction-prompt {
+  position: absolute;
+  top: 62%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(12, 10, 24, 0.92);
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.45);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--neon-cyan);
+  pointer-events: none;
+  display: none;
+  z-index: 160;
+  text-align: center;
+}
+
+#objective-banner {
+  background: rgba(16, 12, 28, 0.88);
+  border: 1px solid rgba(255, 170, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(255, 170, 0, 0.1);
+}

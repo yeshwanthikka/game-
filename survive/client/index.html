@@ -28,11 +28,21 @@
           </div>
         </div>
 
+        <div id="objective-banner" class="hud-card" style="text-align: center; min-width: 320px;">
+          <div class="card-title" style="color: #ffaa00;">MISSION DIRECTIVE</div>
+          <div id="objective-text" style="font-size: 13px; font-weight: bold; color: #fff;">
+            Salvage 4 Ship Parts & Bio-Fuel to repair Escape Pod
+          </div>
+        </div>
+
         <div class="nav-buttons">
           <button id="btn-leaderboard" class="hud-btn">LEADERBOARD</button>
           <button id="btn-bestiary" class="hud-btn">XENO BESTIARY</button>
         </div>
       </div>
+
+      <!-- Interaction Tooltip -->
+      <div id="interaction-prompt"></div>
 
       <!-- Bottom HUD -->
       <div class="hud-bottom">
@@ -91,13 +101,15 @@
         <div class="subtitle">HOSTILE XENOPLANET EXPEDITION</div>
         
         <div class="instructions">
-          <p>• <span>[W, A, S, D]</span> or Arrow Keys — Navigate terrain</p>
-          <p>• <span>[MOUSE]</span> — First-person look</p>
+          <p>• <span>[W, A, S, D]</span> — Navigate alien terrain</p>
+          <p>• <span>[MOUSE]</span> — First-person look & target aim</p>
+          <p>• <span>[LEFT CLICK]</span> — Fire Plasma Blaster (30 rounds)</p>
+          <p>• <span>[E]</span> — Harvest Flora / Salvage Ship Wreckage / Repair Pod</p>
           <p>• <span>[SPACE]</span> — Jump over alien crags</p>
           <p>• <span>[SHIFT]</span> — Sprint (consumes suit stamina)</p>
           <p>• <span>[ESC]</span> — Release mouse / pause view</p>
           <p style="margin-top: 8px; color: #ffaa00;">
-            ⚠ Warning: Planet surface undergoes severe atmospheric changes between day & night.
+            ⚠ Objective: Locate 4 glowing sky-beacon ship wrecks, gather resources, and launch escape pod.
           </p>
         </div>
 
@@ -137,6 +149,22 @@
       </div>
       <button id="btn-respawn" class="btn-start" style="background: linear-gradient(135deg, #ff0055, #990033); border-color: #ff0055;">
         DEPLOY NEW CLONE
+      </button>
+    </div>
+
+    <!-- Extraction Victory Modal -->
+    <div id="modal-victory" class="data-modal" style="text-align: center; border-color: #00ff88; box-shadow: 0 0 50px rgba(0, 255, 136, 0.35);">
+      <h2 style="color: #00ff88; border-bottom-color: rgba(0, 255, 136, 0.4);">MISSION SUCCESS: EXTRACTION CONFIRMED</h2>
+      <p style="color: #e2e8f0; margin-bottom: 20px; font-size: 14px;">
+        Escape pod reached orbital rendezvous. Planetary scout telemetry recorded to database!
+      </p>
+      <div id="victory-stats" style="font-family: monospace; font-size: 14px; color: #cbd5e0; line-height: 2.2; margin-bottom: 24px;">
+        <div>Extraction Time: <span id="victory-time" style="color: #00ff88; font-weight: bold;">00:00</span></div>
+        <div>Threats Neutralized: <span id="victory-kills" style="color: #00f0ff; font-weight: bold;">0</span></div>
+        <div>Resources Gathered: <span id="victory-resources" style="color: #ffaa00; font-weight: bold;">0</span></div>
+      </div>
+      <button id="btn-victory-restart" class="btn-start" style="background: linear-gradient(135deg, #00ff88, #00aa55); border-color: #00ff88; color: #021a0a; font-weight: bold;">
+        COMMENCE NEW MISSION
       </button>
     </div>
 
