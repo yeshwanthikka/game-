@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Star Runner — Authenticate with SQLite to sync your highest world level, best score record, and character customization.">
+  <title>Star Runner — Pilot Authentication</title>
+  <link rel="stylesheet" href="login.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Animated Game World Canvas Backdrop (Matching exact in-game visuals) -->
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="login-wrapper">
+    <!-- Star Runner Game Theme Container -->
+    <div class="login-card">
+      <!-- Decorative Game Badges -->
+      <div class="card-deco-top">
+        <span class="block-badge question-block" title="Mystery Block">?</span>
+        <div class="star-coin-pill">
+          <span class="star-icon">⭐</span>
+          <span class="pill-text">SQLITE CLOUD SAVE</span>
+        </div>
+        <span class="block-badge brick-block" title="Brick Block">🧱</span>
+      </div>
+
+      <!-- Main Game Title -->
+      <h1 class="game-title">STAR RUNNER</h1>
+      <p class="game-subtitle">RUNNER AUTHENTICATION TERMINAL</p>
+
+      <!-- Mode Switch Tabs -->
+      <div class="auth-tabs">
+        <button id="tab-login" class="tab-btn active" type="button">LOG IN</button>
+        <button id="tab-register" class="tab-btn" type="button">REGISTER RUNNER</button>
+      </div>
+
+      <!-- Auth Form -->
+      <form id="auth-form" class="auth-form" autocomplete="on">
+        <!-- Gmail Input -->
+        <div class="form-group">
+          <label for="input-email" class="form-label">GMAIL / EMAIL</label>
+          <div class="input-container">
+            <span class="input-icon">📧</span>
+            <input 
+              type="email" 
+              id="input-email" 
+              class="form-input" 
+              placeholder="pilot@gmail.com" 
+              required 
+              autocomplete="email"
+            />
+          </div>
+        </div>
+
+        <!-- Nickname Input (Register only) -->
+        <div id="group-nickname" class="form-group" style="display: none;">
+          <label for="input-nickname" class="form-label">RUNNER NICKNAME</label>
+          <div class="input-container">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              id="input-nickname" 
+              class="form-input" 
+              placeholder="e.g. CosmicAce" 
+              maxlength="20" 
+              autocomplete="username"
+            />
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <label for="input-password" class="form-label">SECURITY KEY / PASSWORD</label>
+          <div class="input-container">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="input-password" 
+              class="form-input" 
+              placeholder="••••••••" 
+              required 
+              autocomplete="current-password"
+            />
+          </div>
+        </div>
+
+        <!-- Status / Error Notification -->
+        <div id="auth-feedback" class="auth-feedback"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button type="submit" id="btn-submit" class="btn-primary-action">
+            <span id="submit-text">START RUNNING ▶</span>
+          </button>
+          
+          <button type="button" id="btn-guest" class="btn-secondary-action">
+            <span>PLAY AS GUEST 🍄</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Footer Info -->
+      <div class="card-footer">
+        <div class="db-indicator">
+          <span class="status-dot"></span>
+          <span>SQLite Database Connected</span>
+        </div>
+        <div class="seed-hint">
+          Demo Pilot: <code>pilot@gmail.com</code> / <code>password123</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>
