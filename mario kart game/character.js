@@ -95,7 +95,15 @@ class CharacterManager {
     } catch (e) {
       console.warn("Could not save character to localStorage", e);
     }
+    if (window.authManager && window.authManager.isLoggedIn()) {
+      window.authManager.syncProgress(0, 1, 0);
+    }
   }
+
+  saveToStorage() {
+    this.saveCharacter(this.current);
+  }
+
 
   setProp(prop, value) {
     this.current[prop] = value;
@@ -704,3 +712,5 @@ class CharacterManager {
 }
 
 const characterManager = new CharacterManager();
+window.characterManager = characterManager;
+window.charCustomizer = characterManager;

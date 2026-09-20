@@ -93,9 +93,37 @@
 
     <!-- HOME / MAIN MENU OVERLAY -->
     <div id="home-overlay" class="overlay">
-      <div class="modal-box">
+      <div class="modal-box home-box">
+        <!-- Decorative Platformer Elements Top Row -->
+        <div class="card-deco-top">
+          <span class="block-badge question-block" title="Mystery Block">?</span>
+          <div class="star-coin-pill">
+            <span class="star-icon">⭐</span>
+            <span class="pill-text">SQLITE POWERED</span>
+          </div>
+          <span class="block-badge brick-block" title="Brick Block">🧱</span>
+        </div>
+
+        <!-- Auth Bar / User Profile Header -->
+        <div id="home-auth-bar" class="home-auth-bar">
+          <a href="login.html" id="home-login-btn" class="btn-chip glow-cyan">
+            <span>🔑 LOG IN / REGISTER RUNNER</span>
+          </a>
+        </div>
+
+        <div id="home-profile-card" class="home-profile-card" style="display: none;">
+          <div class="profile-header">
+            <div class="profile-badge">🍄 RUNNER: <span id="profile-nickname" class="badge-accent">CosmicRacer</span></div>
+            <button id="profile-logout-btn" class="profile-logout-btn" title="Sign Out or Switch Account">SWITCH / LOGOUT</button>
+          </div>
+          <div class="profile-details">
+            <span class="profile-detail-item">📧 <span id="profile-email">pilot@gmail.com</span></span>
+            <span class="profile-detail-item">🚩 <span id="profile-level" class="badge-level">World 1-1</span></span>
+          </div>
+        </div>
+
         <h1 class="game-title">STAR RUNNER</h1>
-        <p class="game-subtitle">COSMIC ACTION ADVENTURE</p>
+        <p class="game-subtitle">★ 2D PLATFORMER ADVENTURE ★</p>
 
         <div class="best-score-pill">
           <span>🏆 BEST RECORD:</span>
@@ -111,6 +139,9 @@
           </button>
           <button id="home-custom-btn" class="btn btn-secondary">
             <span>🎨 CUSTOMIZE CHARACTER</span>
+          </button>
+          <button id="home-leaderboard-btn" class="btn btn-secondary">
+            <span>🏆 LEADERBOARD</span>
           </button>
         </div>
 
@@ -381,12 +412,70 @@
         </div>
       </div>
     </div>
+
+    <!-- THEMED AUTHENTICATION MODAL (LOGIN & REGISTER) -->
+    <div id="auth-modal" class="overlay hidden">
+      <div class="modal-box auth-box">
+        <button id="auth-close-btn" class="modal-close-x" title="Close">✕</button>
+
+        <h2 class="game-title" style="font-size: 2.2rem; margin-bottom: 0.2rem;">PILOT TERMINAL</h2>
+        <p class="game-subtitle" style="margin-bottom: 1.2rem;">AUTHENTICATE WITH GMAIL & SQLITE DATABASE</p>
+
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button id="tab-login" class="auth-tab-btn active">LOG IN</button>
+          <button id="tab-register" class="auth-tab-btn">REGISTER RUNNER</button>
+        </div>
+
+        <form id="auth-form" class="auth-form">
+          <div class="form-group">
+            <label for="auth-email-input" class="form-label">GMAIL / EMAIL ADDRESS</label>
+            <input type="email" id="auth-email-input" class="form-input" placeholder="pilot@gmail.com" required autocomplete="email" />
+          </div>
+
+          <div id="field-nickname" class="form-group" style="display: none;">
+            <label for="auth-nickname-input" class="form-label">RUNNER NICKNAME</label>
+            <input type="text" id="auth-nickname-input" class="form-input" placeholder="e.g. StarAce_99" maxlength="20" autocomplete="username" />
+          </div>
+
+          <div class="form-group">
+            <label for="auth-password-input" class="form-label">SECURITY KEY / PASSWORD</label>
+            <input type="password" id="auth-password-input" class="form-input" placeholder="••••••••" required autocomplete="current-password" />
+          </div>
+
+          <div id="auth-status" class="auth-status"></div>
+
+          <div class="btn-row" style="margin-top: 1.2rem;">
+            <button type="submit" id="auth-submit-btn" class="btn btn-primary" style="flex: 2;">
+              <span>AUTHENTICATE PILOT</span>
+            </button>
+            <button type="button" id="auth-guest-btn" class="btn btn-secondary" style="flex: 1;">
+              <span>PLAY GUEST</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- THEMED LEADERBOARD MODAL -->
+    <div id="leaderboard-modal" class="overlay hidden">
+      <div class="modal-box lb-box">
+        <button id="lb-close-btn" class="modal-close-x" title="Close">✕</button>
+        <h2 class="game-title" style="font-size: 2.2rem; margin-bottom: 0.2rem;">SQLITE LEADERBOARD</h2>
+        <p class="game-subtitle" style="margin-bottom: 1.2rem;">TOP PILOTS IN THE STAR ARCHIPELAGO</p>
+
+        <div id="lb-content" class="lb-content-area">
+          <div style="color: var(--neon-cyan); padding: 1rem;">Loading high scores from SQLite...</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Game Scripts -->
   <script src="audio.js"></script>
   <script src="character.js"></script>
   <script src="particles.js"></script>
+  <script src="auth.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

@@ -519,6 +519,16 @@ class Game {
       if (savedBest) this.bestScore = parseInt(savedBest, 10) || 0;
     } catch (e) {}
 
+    // Integrate with SQLite AuthManager if logged in
+    if (window.authManager && window.authManager.isLoggedIn() && window.authManager.user) {
+      if (window.authManager.user.level) {
+        this.maxUnlockedLevel = Math.max(this.maxUnlockedLevel, window.authManager.user.level);
+      }
+      if (window.authManager.user.best_score !== undefined) {
+        this.bestScore = Math.max(this.bestScore, window.authManager.user.best_score);
+      }
+    }
+
     // Audio, Character, Particles
     this.sound = soundManager;
     this.character = characterManager;
@@ -1226,6 +1236,11 @@ class Game {
       } catch (e) {}
     }
 
+    // Sync to SQLite database
+    if (window.authManager) {
+      window.authManager.syncProgress(this.score, this.maxUnlockedLevel, this.coinsCollected);
+    }
+
     // Populate Level Clear Modal
     document.getElementById('lc-level-name').textContent = `${lvl.subtitle} — ${lvl.title}`;
     document.getElementById('lc-coins').textContent = this.coinsCollected;
@@ -1251,6 +1266,11 @@ class Game {
         localStorage.setItem('sr_best', this.bestScore);
       } catch (e) {}
       this.particles.createConfetti(this.width, this.height);
+    }
+
+    // Sync to SQLite database
+    if (window.authManager) {
+      window.authManager.syncProgress(this.score, this.maxUnlockedLevel, this.coinsCollected);
     }
 
     document.getElementById('go-final-score').textContent = this.score;
@@ -4001,4 +4021,5 @@ class Game {
 // Start Game Instance on Load
 window.addEventListener('DOMContentLoaded', () => {
   window.gameInstance = new Game();
+  window.game = window.gameInstance;
 });
